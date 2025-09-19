@@ -4,6 +4,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   mode: 'development',
   entry: './index.web.ts',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].js',
+    publicPath: '/',
+  },
   resolve: {
     alias: {
       'react-native$': 'react-native-web',
@@ -53,6 +58,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html',
       inject: true,
+      publicPath: '/',
     }),
   ],
   devServer: {

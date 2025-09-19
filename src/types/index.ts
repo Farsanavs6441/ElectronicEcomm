@@ -18,6 +18,7 @@ export interface User {
 
 export type RootStackParamList = {
   Splash: undefined;
+  Main: undefined;
   ProductList: undefined;
   ProductDetails: { productId: string };
   Favourites: undefined;
