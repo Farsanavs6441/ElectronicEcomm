@@ -5,10 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Image,
   Alert,
-  ActivityIndicator,
-  Animated,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,6 +13,7 @@ import { Product, RootStackParamList } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ApiService from '../services/api';
 import ProductCard from '../components/ProductCard';
+import { useLoading } from '../context/LoadingContext';
 
 type FavouritesNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Favourites'>;
 
@@ -24,8 +22,7 @@ const FavouritesScreen: React.FC = () => {
   const [favourites, setFavourites] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const { setLoading: setGlobalLoading } = useLoading();
 
   useEffect(() => {
     loadProducts();
@@ -39,14 +36,7 @@ const FavouritesScreen: React.FC = () => {
 
   const loadProducts = async () => {
     try {
-      setIsLoading(true);
-
-      // Animate fade in
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+      setGlobalLoading(true);
 
       // First, try to load from cache
       const cachedProducts = await AsyncStorage.getItem('electronicEcomm_products');
@@ -54,7 +44,7 @@ const FavouritesScreen: React.FC = () => {
         const products = JSON.parse(cachedProducts);
         setAllProducts(products);
         console.log('Loaded products from cache');
-        setIsLoading(false);
+        setGlobalLoading(false);
         return;
       }
 
@@ -80,7 +70,7 @@ const FavouritesScreen: React.FC = () => {
         console.error('Error loading from cache:', cacheError);
       }
     } finally {
-      setIsLoading(false);
+      setGlobalLoading(false);
     }
   };
 
@@ -144,6 +134,7 @@ const FavouritesScreen: React.FC = () => {
       product={item}
       onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
       showFavoriteIcon={true}
+      isFavorite={true}
       onFavoritePress={removeFavourite}
     />
   );
@@ -164,17 +155,6 @@ const FavouritesScreen: React.FC = () => {
     </View>
   );
 
-  if (isLoading) {
-    return (
-      <Animated.View style={[styles.loadingContainer, { opacity: fadeAnim }]}>
-        <View style={styles.loadingContent}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading your favorites...</Text>
-          <Text style={styles.loadingSubtext}>Gathering your saved items</Text>
-        </View>
-      </Animated.View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -240,30 +220,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 20,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  loadingSubtext: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
   },
 });
 

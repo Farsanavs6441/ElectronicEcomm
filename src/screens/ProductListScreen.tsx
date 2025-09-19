@@ -5,18 +5,17 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Image,
   TextInput,
-  ActivityIndicator,
-  Animated,
-  Easing,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
 import ApiService from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useLoading } from '../context/LoadingContext';
+import { useFavorites } from '../context/FavoritesContext';
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
+import ProgressiveImage from '../components/ProgressiveImage';
 
 type ProductListNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ProductList'>;
 
@@ -25,83 +24,19 @@ const ProductListScreen: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchText, setSearchText] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [scaleAnim] = useState(new Animated.Value(0.8));
-  const [dotAnim] = useState(new Animated.Value(0));
+  const [isLoading, setIsLoading] = useState(true);
+  const { setLoading: setGlobalLoading } = useLoading();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     loadProducts();
-    loadFavorites();
+  }, []);
 
-    // Animate loading screen
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 800,
-        easing: Easing.out(Easing.back(1.5)),
-        useNativeDriver: true,
-      })
-    ]).start();
-
-    // Animate dots with pulsing effect
-    const animateDots = () => {
-      Animated.sequence([
-        Animated.timing(dotAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(dotAnim, {
-          toValue: 0,
-          duration: 600,
-          useNativeDriver: true,
-        })
-      ]).start(() => animateDots());
-    };
-
-    if (loading) {
-      animateDots();
-    }
-  }, [loading]);
-
-  const loadFavorites = async () => {
-    try {
-      const savedFavorites = await AsyncStorage.getItem('electronicEcomm_favorites');
-      if (savedFavorites) {
-        setFavorites(JSON.parse(savedFavorites));
-      }
-    } catch (error) {
-      console.error('Error loading favorites:', error);
-    }
-  };
-
-  const saveFavorites = async (newFavorites: string[]) => {
-    try {
-      await AsyncStorage.setItem('electronicEcomm_favorites', JSON.stringify(newFavorites));
-      setFavorites(newFavorites);
-    } catch (error) {
-      console.error('Error saving favorites:', error);
-    }
-  };
-
-  const toggleFavorite = (productId: string) => {
-    const newFavorites = favorites.includes(productId)
-      ? favorites.filter(id => id !== productId)
-      : [...favorites, productId];
-    saveFavorites(newFavorites);
-  };
 
   const refreshProducts = async () => {
     try {
-      setLoading(true);
+      setGlobalLoading(true);
       setError(null);
 
       // Clear cache and fetch fresh data
@@ -119,13 +54,14 @@ const ProductListScreen: React.FC = () => {
       setError('Failed to refresh products. Please try again.');
       console.error('Error refreshing products:', err);
     } finally {
-      setLoading(false);
+      setGlobalLoading(false);
     }
   };
 
   const loadProducts = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
+      setGlobalLoading(true);
       setError(null);
 
       // First, try to load from cache
@@ -134,8 +70,9 @@ const ProductListScreen: React.FC = () => {
         const products = JSON.parse(cachedProducts);
         setProducts(products);
         setFilteredProducts(products);
-        setLoading(false);
         console.log('Loaded products from cache');
+        setIsLoading(false);
+        setGlobalLoading(false);
         return;
       }
 
@@ -166,7 +103,8 @@ const ProductListScreen: React.FC = () => {
         console.error('Error loading from cache:', cacheError);
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
+      setGlobalLoading(false);
     }
   };
 
@@ -178,7 +116,7 @@ const ProductListScreen: React.FC = () => {
   }, [searchText, products]);
 
   const renderProduct = ({ item }: { item: Product }) => {
-    const isFavorite = favorites.includes(item.id);
+    const isItemFavorite = isFavorite(item.id);
 
     return (
       <TouchableOpacity
@@ -186,17 +124,24 @@ const ProductListScreen: React.FC = () => {
         onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
       >
         <View style={styles.imageContainer}>
-          <Image source={{ uri: item.image }} style={styles.productImage} />
-          <TouchableOpacity
+          <ProgressiveImage
+            source={{ uri: item.image }}
+            style={styles.productImage}
+            containerStyle={styles.imageContainer}
+            resizeMode="cover"
+            borderRadius={8}
+            onLoad={() => console.log('Image loaded:', item.name)}
+            onError={() => console.log('Image failed to load:', item.name)}
+            priority="normal"
+          />
+          {/* <TouchableOpacity
             style={styles.favoriteButton}
             onPress={() => toggleFavorite(item.id)}
           >
-            <Ionicons
-              name={isFavorite ? 'heart' : 'heart-outline'}
-              size={18}
-              color={isFavorite ? '#FF3B30' : '#666'}
-            />
-          </TouchableOpacity>
+            <Text style={[styles.favoriteIcon, { color: isItemFavorite ? '#FF3B30' : '#666' }]}>
+              {isItemFavorite ? '\u2764' : '\u2661'}
+            </Text>
+          </TouchableOpacity> */}
         </View>
         <View style={styles.productInfo}>
           <Text style={styles.productName}>{item.name}</Text>
@@ -206,42 +151,25 @@ const ProductListScreen: React.FC = () => {
     );
   };
 
-  if (loading) {
+
+  // Loading state during initial fetch
+  if (isLoading && products.length === 0) {
     return (
-      <Animated.View
-        style={[
-          styles.loadingContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }]
-          }
-        ]}
-      >
-        <View style={styles.loadingContent}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading products...</Text>
-          <Text style={styles.loadingSubtext}>Please wait while we fetch the latest items</Text>
-          <Animated.View
-            style={[
-              styles.loadingDots,
-              {
-                opacity: dotAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.3, 1]
-                })
-              }
-            ]}
-          >
-            <Text style={styles.dot}>•</Text>
-            <Text style={styles.dot}>•</Text>
-            <Text style={styles.dot}>•</Text>
-          </Animated.View>
-        </View>
-      </Animated.View>
+      <View style={styles.container}>
+        <Text style={styles.header}>Products</Text>
+        <FlatList
+          data={Array(6).fill(null)}
+          renderItem={() => <ProductCardSkeleton isMobile={true} />}
+          keyExtractor={(_, index) => `skeleton-${index}`}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+        />
+      </View>
     );
   }
 
-  if (error) {
+  if (error && products.length === 0) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
@@ -261,12 +189,29 @@ const ProductListScreen: React.FC = () => {
         value={searchText}
         onChangeText={setSearchText}
       />
-      <FlatList
-        data={filteredProducts}
-        renderItem={renderProduct}
-        keyExtractor={item => item.id}
-        showsVerticalScrollIndicator={false}
-      />
+      {filteredProducts.length === 0 && products.length > 0 && searchText.length > 0 ? (
+        <View style={styles.emptyStateContainer}>
+          <Text style={styles.emptyStateText}>🔍</Text>
+          <Text style={styles.emptyStateTitle}>No products found</Text>
+          <Text style={styles.emptyStateSubtitle}>
+            No products match "{searchText}". Try adjusting your search.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredProducts}
+          renderItem={renderProduct}
+          keyExtractor={item => item.id}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          initialNumToRender={6}
+          getItemLayout={(data, index) => (
+            {length: 200, offset: 200 * index, index}
+          )}
+        />
+      )}
     </View>
   );
 };
@@ -345,40 +290,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 20,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  loadingSubtext: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  loadingDots: {
-    flexDirection: 'row',
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  dot: {
-    fontSize: 20,
-    color: '#007AFF',
-    marginHorizontal: 5,
-  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -428,6 +339,47 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,
+  },
+  favoriteIcon: {
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  emptyStateText: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStateSubtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });
 

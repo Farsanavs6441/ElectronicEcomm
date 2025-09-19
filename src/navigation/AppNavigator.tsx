@@ -2,9 +2,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text } from 'react-native';
 import { RootStackParamList } from '../types';
 import Colors from '../utils/colors';
-import Ionicons from '@react-native-vector-icons/ionicons';
 
 import SplashScreen from '../screens/SplashScreen';
 import ProductListScreen from '../screens/ProductListScreen';
@@ -39,8 +39,10 @@ const TabNavigator = () => {
         options={{
           title: 'Products',
           tabBarLabel: 'Products',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="phone-portrait-outline" size={size} color={color} />
+          tabBarIcon: ({ focused, color }) => (
+            <Text style={{ fontSize: 24, color }}>
+              {focused ? '🛍️' : '🛒'}
+            </Text>
           ),
         }}
       />
@@ -50,8 +52,10 @@ const TabNavigator = () => {
         options={{
           title: 'My Favourites',
           tabBarLabel: 'Favourites',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart-outline" size={size} color={color} />
+          tabBarIcon: ({ focused, color }) => (
+            <Text style={{ fontSize: 24, color: focused ? '#FF3B30' : color }}>
+              {focused ? '❤️' : '🤍'}
+            </Text>
           ),
         }}
       />
@@ -59,9 +63,20 @@ const TabNavigator = () => {
   );
 };
 
+const linking = {
+  prefixes: ['https://localhost:3002', 'http://localhost:3002', 'myshoplite://'],
+  config: {
+    screens: {
+      Splash: 'splash',
+      Main: 'main',
+      ProductDetails: 'product/:productId',
+    },
+  },
+};
+
 const AppNavigator: React.FC = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{
@@ -87,7 +102,11 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="ProductDetails"
           component={ProductDetailsScreen}
-          options={{ title: 'Product Details' }}
+          options={{
+            title: 'Product Details',
+            headerBackTitle: '',
+            headerBackButtonDisplayMode: 'minimal',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

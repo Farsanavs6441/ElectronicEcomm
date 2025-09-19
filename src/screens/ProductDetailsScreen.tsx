@@ -3,29 +3,30 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   ScrollView,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
 import ApiService from '../services/api';
+import { useFavorites } from '../context/FavoritesContext';
+import ProductDetailSkeleton from '../components/ProductDetailSkeleton';
+import ProgressiveImage from '../components/ProgressiveImage';
 
 type ProductDetailsRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
-type ProductDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'ProductDetails'>;
+type ProductDetailsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ProductDetails'>;
 
 const ProductDetailsScreen: React.FC = () => {
   const route = useRoute<ProductDetailsRouteProp>();
   const navigation = useNavigation<ProductDetailsNavigationProp>();
   const { productId } = route.params;
   const [product, setProduct] = useState<Product | null>(null);
-  const [isFavourite, setIsFavourite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     loadProduct();
@@ -50,10 +51,14 @@ const ProductDetailsScreen: React.FC = () => {
   };
 
   const toggleFavourite = () => {
-    setIsFavourite(!isFavourite);
+    if (!product) return;
+
+    const isCurrentlyFavorite = isFavorite(product.id);
+    toggleFavorite(product.id);
+
     Alert.alert(
       'Favourites',
-      isFavourite ? 'Removed from favourites' : 'Added to favourites'
+      isCurrentlyFavorite ? 'Removed from favourites' : 'Added to favourites'
     );
   };
 
@@ -62,12 +67,7 @@ const ProductDetailsScreen: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading product...</Text>
-      </View>
-    );
+    return <ProductDetailSkeleton showHeader={false} />;
   }
 
   if (error || !product) {
@@ -83,14 +83,23 @@ const ProductDetailsScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Image source={{ uri: product.image }} style={styles.productImage} />
+      <ProgressiveImage
+        source={{ uri: product.image }}
+        style={styles.productImage}
+        containerStyle={undefined}
+        resizeMode="cover"
+        borderRadius={0}
+        onLoad={() => console.log('Product image loaded:', product.name)}
+        onError={() => console.log('Product image failed to load:', product.name)}
+        priority="high"
+      />
 
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.productName}>{product.name}</Text>
           <TouchableOpacity onPress={toggleFavourite}>
-            <Text style={[styles.favouriteIcon, { color: isFavourite ? 'red' : '#ccc' }]}>
-              ♥
+            <Text style={[styles.favouriteIcon, { color: product && isFavorite(product.id) ? '#FF3B30' : '#ccc' }]}>
+              {product && isFavorite(product.id) ? '❤' : '♡'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -98,12 +107,9 @@ const ProductDetailsScreen: React.FC = () => {
         <Text style={styles.productPrice}>${product.price}</Text>
         <Text style={styles.productCategory}>{product.category}</Text>
 
-        <View style={styles.ratingContainer}>
+        {/* <View style={styles.ratingContainer}>
           <Text style={styles.rating}>★ {product.rating}</Text>
-          <Text style={[styles.stockStatus, { color: product.inStock ? 'green' : 'red' }]}>
-            {product.inStock ? 'In Stock' : 'Out of Stock'}
-          </Text>
-        </View>
+        </View> */}
 
         <Text style={styles.descriptionTitle}>Description</Text>
         <Text style={styles.description}>{product.description}</Text>
@@ -115,17 +121,17 @@ const ProductDetailsScreen: React.FC = () => {
             disabled={!product.inStock}
           >
             <Text style={styles.buttonText}>
-              {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+              {'Add to Cart' }
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.button, styles.buyNowButton]}
             onPress={() => Alert.alert('Purchase', 'Redirecting to checkout...')}
             disabled={!product.inStock}
           >
             <Text style={styles.buttonText}>Buy Now</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </ScrollView>
@@ -232,7 +238,7 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    padding: 16,
+    padding: 20,
     borderRadius: 8,
     alignItems: 'center',
   },
