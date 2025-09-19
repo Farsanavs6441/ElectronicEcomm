@@ -4,27 +4,37 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   mode: 'development',
   entry: './index.web.ts',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
-    publicPath: '/',
-  },
   resolve: {
     alias: {
       'react-native$': 'react-native-web',
     },
     extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js', '.json', '.web.jsx', '.jsx'],
+    fallback: {
+      'path': false,
+      'fs': false,
+    },
+    fullySpecified: false,
   },
   module: {
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)$/,
-        exclude: /node_modules/,
+        include: [
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, 'App.web.tsx'),
+          path.resolve(__dirname, 'index.web.ts'),
+          /node_modules\/@react-navigation/,
+          /node_modules\/react-native-gesture-handler/,
+          /node_modules\/@react-native-masked-view/,
+        ],
         use: {
           loader: 'babel-loader',
           options: {
             configFile: './babel.config.web.js',
           },
+        },
+        resolve: {
+          fullySpecified: false,
         },
       },
       {
@@ -50,5 +60,8 @@ module.exports = {
     port: 3001,
     open: true,
     historyApiFallback: true,
+  },
+  experiments: {
+    topLevelAwait: true,
   },
 };
