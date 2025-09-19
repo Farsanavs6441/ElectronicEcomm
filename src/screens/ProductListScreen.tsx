@@ -21,7 +21,10 @@ import { commonStyles } from '../styles/commonStyles';
 import { styles as screenStyles } from '../styles/ProductListScreenStyles';
 import { combineStyles } from '../utils/styleHelpers';
 
-type ProductListNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ProductList'>;
+type ProductListNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'ProductList'
+>;
 
 const ProductListScreen: React.FC = () => {
   const navigation = useNavigation<ProductListNavigationProp>();
@@ -38,7 +41,6 @@ const ProductListScreen: React.FC = () => {
   useEffect(() => {
     loadProducts();
   }, []);
-
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -59,7 +61,10 @@ const ProductListScreen: React.FC = () => {
       setFilteredProducts(fetchedProducts);
 
       // Cache the fresh products
-      await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(fetchedProducts));
+      await AsyncStorage.setItem(
+        'electronicEcomm_products',
+        JSON.stringify(fetchedProducts),
+      );
     } catch (err) {
       setError('Failed to refresh products. Please try again.');
       console.error('Error refreshing products:', err);
@@ -75,7 +80,9 @@ const ProductListScreen: React.FC = () => {
       setError(null);
 
       // First, try to load from cache
-      const cachedProducts = await AsyncStorage.getItem('electronicEcomm_products');
+      const cachedProducts = await AsyncStorage.getItem(
+        'electronicEcomm_products',
+      );
       if (cachedProducts) {
         const products = JSON.parse(cachedProducts);
         setProducts(products);
@@ -91,14 +98,19 @@ const ProductListScreen: React.FC = () => {
       setFilteredProducts(fetchedProducts);
 
       // Cache the products
-      await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(fetchedProducts));
+      await AsyncStorage.setItem(
+        'electronicEcomm_products',
+        JSON.stringify(fetchedProducts),
+      );
     } catch (err) {
       setError('Failed to load products. Please try again.');
       console.error('Error loading products:', err);
 
       // Try to load from cache as fallback
       try {
-        const cachedProducts = await AsyncStorage.getItem('electronicEcomm_products');
+        const cachedProducts = await AsyncStorage.getItem(
+          'electronicEcomm_products',
+        );
         if (cachedProducts) {
           const products = JSON.parse(cachedProducts);
           setProducts(products);
@@ -116,7 +128,7 @@ const ProductListScreen: React.FC = () => {
 
   useEffect(() => {
     const filtered = products.filter(product =>
-      product.name.toLowerCase().includes(searchText.toLowerCase())
+      product.name.toLowerCase().includes(searchText.toLowerCase()),
     );
     setFilteredProducts(filtered);
   }, [searchText, products]);
@@ -127,18 +139,20 @@ const ProductListScreen: React.FC = () => {
     return (
       <TouchableOpacity
         style={styles.productCard}
-        onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
+        onPress={() =>
+          navigation.navigate('ProductDetails', { productId: item.id })
+        }
       >
         <View style={styles.imageContainer}>
           <ProgressiveImage
             source={{ uri: item.image }}
             style={styles.productImage}
             containerStyle={styles.imageContainer}
-            resizeMode="cover"
+            resizeMode='cover'
             borderRadius={8}
             onLoad={() => {}}
             onError={() => {}}
-            priority="normal"
+            priority='normal'
           />
           {/* <TouchableOpacity
             style={styles.favoriteButton}
@@ -156,7 +170,6 @@ const ProductListScreen: React.FC = () => {
       </TouchableOpacity>
     );
   };
-
 
   // Loading state during initial fetch
   if (isLoading && products.length === 0) {
@@ -201,11 +214,13 @@ const ProductListScreen: React.FC = () => {
       </View>
       <TextInput
         style={styles.searchInput}
-        placeholder="Search products..."
+        placeholder='Search products...'
         value={searchText}
         onChangeText={setSearchText}
       />
-      {filteredProducts.length === 0 && products.length > 0 && searchText.length > 0 ? (
+      {filteredProducts.length === 0 &&
+      products.length > 0 &&
+      searchText.length > 0 ? (
         <View style={styles.emptyStateContainer}>
           <Text style={styles.emptyStateText}>🔍</Text>
           <Text style={styles.emptyStateTitle}>No products found</Text>
@@ -228,12 +243,14 @@ const ProductListScreen: React.FC = () => {
               refreshing={refreshing}
               onRefresh={onRefresh}
               colors={['#007AFF']}
-              tintColor="#007AFF"
+              tintColor='#007AFF'
             />
           }
-          getItemLayout={(data, index) => (
-            {length: 200, offset: 200 * index, index}
-          )}
+          getItemLayout={(data, index) => ({
+            length: 200,
+            offset: 200 * index,
+            index,
+          })}
         />
       )}
     </View>
