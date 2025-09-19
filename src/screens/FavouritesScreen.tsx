@@ -7,43 +7,113 @@ import {
   StyleSheet,
   Image,
   Alert,
+  ActivityIndicator,
+  Animated,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ApiService from '../services/api';
+import ProductCard from '../components/ProductCard';
 
-type FavouritesNavigationProp = StackNavigationProp<RootStackParamList, 'Favourites'>;
+type FavouritesNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Favourites'>;
 
 const FavouritesScreen: React.FC = () => {
   const navigation = useNavigation<FavouritesNavigationProp>();
   const [favourites, setFavourites] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    // Mock favourite products - replace with actual storage/API call
-    const mockFavourites: Product[] = [
-      {
-        id: '1',
-        name: 'iPhone 15 Pro',
-        price: 999,
-        description: 'Latest iPhone with advanced features',
-        image: 'https://via.placeholder.com/150',
-        category: 'Smartphones',
-        rating: 4.8,
-        inStock: true,
-      },
-      {
-        id: '3',
-        name: 'MacBook Pro 16"',
-        price: 2399,
-        description: 'Professional laptop for power users',
-        image: 'https://via.placeholder.com/150',
-        category: 'Laptops',
-        rating: 4.9,
-        inStock: false,
-      },
-    ];
-    setFavourites(mockFavourites);
+    loadProducts();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadFavorites();
+    }, [])
+  );
+
+  const loadProducts = async () => {
+    try {
+      setIsLoading(true);
+
+      // Animate fade in
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+
+      // First, try to load from cache
+      const cachedProducts = await AsyncStorage.getItem('electronicEcomm_products');
+      if (cachedProducts) {
+        const products = JSON.parse(cachedProducts);
+        setAllProducts(products);
+        console.log('Loaded products from cache');
+        setIsLoading(false);
+        return;
+      }
+
+      // If no cache, fetch from API and cache the result
+      console.log('Fetching products from API...');
+      const products = await ApiService.fetchProducts();
+      setAllProducts(products);
+
+      // Cache the products
+      await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(products));
+      console.log('Products cached successfully');
+    } catch (error) {
+      console.error('Error loading products:', error);
+      // Try to load from cache as fallback
+      try {
+        const cachedProducts = await AsyncStorage.getItem('electronicEcomm_products');
+        if (cachedProducts) {
+          const products = JSON.parse(cachedProducts);
+          setAllProducts(products);
+          console.log('Loaded products from cache as fallback');
+        }
+      } catch (cacheError) {
+        console.error('Error loading from cache:', cacheError);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFavorites = async () => {
+    try {
+      const savedFavorites = await AsyncStorage.getItem('electronicEcomm_favorites');
+      if (savedFavorites) {
+        const favoriteIds = JSON.parse(savedFavorites);
+        setFavoriteIds(favoriteIds);
+
+        // Filter products based on favorite IDs
+        const favoriteProducts = allProducts.filter(product =>
+          favoriteIds.includes(product.id)
+        );
+        setFavourites(favoriteProducts);
+      } else {
+        setFavourites([]);
+        setFavoriteIds([]);
+      }
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+
+  // Update favorites when allProducts or favoriteIds change
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      const favoriteProducts = allProducts.filter(product =>
+        favoriteIds.includes(product.id)
+      );
+      setFavourites(favoriteProducts);
+    }
+  }, [allProducts, favoriteIds]);
 
   const removeFavourite = (productId: string) => {
     Alert.alert(
@@ -54,8 +124,15 @@ const FavouritesScreen: React.FC = () => {
         {
           text: 'Remove',
           style: 'destructive',
-          onPress: () => {
-            setFavourites(prev => prev.filter(item => item.id !== productId));
+          onPress: async () => {
+            try {
+              const newFavorites = favoriteIds.filter(id => id !== productId);
+              await AsyncStorage.setItem('electronicEcomm_favorites', JSON.stringify(newFavorites));
+              setFavoriteIds(newFavorites);
+              setFavourites(prev => prev.filter(item => item.id !== productId));
+            } catch (error) {
+              console.error('Error removing favorite:', error);
+            }
           },
         },
       ]
@@ -63,28 +140,12 @@ const FavouritesScreen: React.FC = () => {
   };
 
   const renderFavouriteItem = ({ item }: { item: Product }) => (
-    <View style={styles.favouriteCard}>
-      <TouchableOpacity
-        style={styles.productInfo}
-        onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
-      >
-        <Image source={{ uri: item.image }} style={styles.productImage} />
-        <View style={styles.productDetails}>
-          <Text style={styles.productName}>{item.name}</Text>
-          <Text style={styles.productPrice}>${item.price}</Text>
-          <Text style={styles.productCategory}>{item.category}</Text>
-          <Text style={[styles.stockStatus, { color: item.inStock ? 'green' : 'red' }]}>
-            {item.inStock ? 'In Stock' : 'Out of Stock'}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.removeButton}
-        onPress={() => removeFavourite(item.id)}
-      >
-        <Text style={styles.removeButtonText}>✕</Text>
-      </TouchableOpacity>
-    </View>
+    <ProductCard
+      product={item}
+      onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
+      showFavoriteIcon={true}
+      onFavoritePress={removeFavourite}
+    />
   );
 
   const renderEmptyState = () => (
@@ -102,6 +163,18 @@ const FavouritesScreen: React.FC = () => {
       </TouchableOpacity>
     </View>
   );
+
+  if (isLoading) {
+    return (
+      <Animated.View style={[styles.loadingContainer, { opacity: fadeAnim }]}>
+        <View style={styles.loadingContent}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Loading your favorites...</Text>
+          <Text style={styles.loadingSubtext}>Gathering your saved items</Text>
+        </View>
+      </Animated.View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -131,67 +204,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     color: '#333',
-  },
-  favouriteCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  productInfo: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  productImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 16,
-  },
-  productDetails: {
-    flex: 1,
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#333',
-  },
-  productPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginBottom: 4,
-  },
-  productCategory: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  stockStatus: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  removeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#FF3B30',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  removeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   emptyContainer: {
     flex: 1,
@@ -228,6 +240,30 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  loadingContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+  },
+  loadingSubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
 
