@@ -92,17 +92,18 @@ Once screenshots are captured and placed in this directory, they will automatica
 - [ ] ios-splash-screen.png
 
 ### Android Screenshots
-- [ ] android-products-tab.png
-- [ ] android-product-details.png
-- [ ] android-favourites-tab.png
-- [ ] android-search.png
-- [ ] android-cart-icon.png
-- [ ] android-splash-screen.png
+- [x] android-products-tab.jpeg - Products tab with material design
+- [x] android-product-detail.jpeg - Product details page (unfavorited)
+- [x] android-product-detail-fav.jpeg - Product details page (favorited)
+- [ ] android-favourites-tab.png - Favourites tab
+- [ ] android-search.png - Search functionality
+- [ ] android-cart-icon.png - Cart with item count
 
 ### Web Screenshots
-- [ ] web-desktop-view.png
-- [ ] web-tablet-view.png
-- [ ] web-mobile-view.png
+- [x] web-product-listtab.png - Products tab in web browser
+- [x] web-product-detail page.png - Product details page on web
+- [x] web-fav-tab.png - Favourites tab in web browser
+- [x] web-search-withproduct.png - Search functionality with results
 
 ### Animated GIFs
 - [ ] cart-animation.gif

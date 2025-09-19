@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Product } from '../types';
 import ApiService from '../services/api';
 import { useFavorites } from '../context/FavoritesContext.web';
+import { useCart } from '../context/CartContext.web';
 import ProductDetailSkeleton from '../components/ProductDetailSkeleton';
 import OptimizedImage from '../components/OptimizedImage';
 import { styles } from '../styles/ProductDetailsWebStyles';
@@ -20,17 +21,33 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { addToCart: addProductToCart } = useCart();
+
+  // State for in-app notifications
+  const [notification, setNotification] = useState<{
+    title: string;
+    message: string;
+    visible: boolean;
+  }>({ title: '', message: '', visible: false });
 
   // Helper function to show web notifications safely
   const showNotification = (title: string, body: string) => {
+    // Try browser notification first
     if (typeof window !== 'undefined' && 'Notification' in window) {
       const NotificationAPI = (window as any).Notification;
       if (NotificationAPI && NotificationAPI.permission === 'granted') {
         new NotificationAPI(title, { body });
-      } else {
+        return;
       }
-    } else {
     }
+
+    // Fallback to in-app notification
+    setNotification({ title, message: body, visible: true });
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, visible: false }));
+    }, 3000);
   };
 
   useEffect(() => {
@@ -69,8 +86,13 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({
   };
 
   const addToCart = () => {
-    // Web notification for cart
-    showNotification('Cart', 'Product added to cart!');
+    if (!product) return;
+
+    // Add product to cart
+    addProductToCart(product);
+
+    // Show notification
+    showNotification('Cart', `${product.name} added to cart!`);
   };
 
   if (loading) {
@@ -99,6 +121,14 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({
 
   return (
     <View style={styles.container}>
+      {/* In-app notification */}
+      {notification.visible && (
+        <View style={styles.notificationContainer}>
+          <Text style={styles.notificationTitle}>{notification.title}</Text>
+          <Text style={styles.notificationMessage}>{notification.message}</Text>
+        </View>
+      )}
+
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
           <Text style={styles.backButtonText}>← Back</Text>
@@ -154,11 +184,20 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={[styles.button, styles.addToCartButton]}
+              style={[
+                styles.button,
+                styles.addToCartButton,
+                product.inStock === false && { backgroundColor: '#ccc', opacity: 0.6 }
+              ]}
               onPress={addToCart}
-              disabled={!product.inStock}
+              disabled={product.inStock === false}
             >
-              <Text style={styles.buttonText}>Add to Cart</Text>
+              <Text style={[
+                styles.buttonText,
+                product.inStock === false && { color: '#666' }
+              ]}>
+                {product.inStock === false ? 'Out of Stock' : 'Add to Cart'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

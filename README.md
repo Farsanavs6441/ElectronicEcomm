@@ -22,8 +22,8 @@ A modern, cross-platform e-commerce application built with React Native that run
 ## ✨ Key Features Implemented
 
 ### 🛍️ Shopping Features
-- **Product Browsing**: Grid-based product catalog with search and filter capabilities
-- **Product Details**: Comprehensive product pages with images, descriptions, and specifications
+- **Product Browsing**: Grid-based product catalog with search 
+- **Product Details**: Comprehensive product pages with images, descriptions, and price and name
 - **Shopping Cart**: Add to cart functionality with animated feedback and persistent cart management
 - **Favorites System**: Save favorite products for later with heart icon interactions
 - **Pull-to-Refresh**: Refresh product data with intuitive gesture support
@@ -56,19 +56,6 @@ A modern, cross-platform e-commerce application built with React Native that run
 
 > **Note:** To add actual screenshots, see [screenshots/README.md](./screenshots/README.md) for detailed instructions on capturing and adding screenshots.
 
-### How to Add Screenshots
-
-1. **Capture Screenshots**:
-   - iOS: `Cmd + S` in Simulator
-   - Android: Camera icon in Emulator
-   - Web: Chrome DevTools screenshot feature
-
-2. **Save to screenshots/ folder** with descriptive names
-
-3. **Reference in README** using:
-   ```markdown
-   ![Description](./screenshots/filename.png)
-   ```
 
 ### 📱 iOS Screenshots
 
@@ -102,7 +89,17 @@ A modern, cross-platform e-commerce application built with React Native that run
 
 ### 🤖 Android Screenshots
 
-*Android screenshots coming soon - The app works perfectly on Android devices with the same features as iOS*
+#### Products Tab (Android)
+![Android Products Tab](./screenshots/android-products-tab.jpeg)
+*Android Products tab showing product grid layout with material design elements*
+
+#### Product Details (Android)
+![Android Product Details](./screenshots/android-product-detail.jpeg)
+*Android Product details page with unfavorited item*
+
+#### Product Details with Favorite (Android)
+![Android Product Details Favorited](./screenshots/android-product-detail-fav.jpeg)
+*Android Product details page with item marked as favorite*
 
 ### 📱 Mobile Features
 
@@ -116,7 +113,21 @@ A modern, cross-platform e-commerce application built with React Native that run
 
 ### 💻 Web Layout (Responsive Design)
 
-*Web screenshots coming soon - The app is fully responsive and works beautifully on desktop and tablet browsers*
+#### Products Tab (Web)
+![Web Products Tab](./screenshots/web-product-listtab.png)
+*Web Products tab showing responsive grid layout with search functionality*
+
+#### Product Details (Web)
+![Web Product Details](./screenshots/web-product-detail%20page.png)
+*Web Product details page with optimized layout for desktop browsers*
+
+#### Favourites Tab (Web)
+![Web Favourites Tab](./screenshots/web-fav-tab.png)
+*Web Favourites tab showing saved products in grid layout*
+
+#### Search with Results (Web)
+![Web Search Results](./screenshots/web-search-withproduct.png)
+*Web search functionality showing filtered product results*
 
 #### Web Features:
 ```css
@@ -126,27 +137,19 @@ A modern, cross-platform e-commerce application built with React Native that run
 - Hover effects on product cards
 - Optimized spacing for desktop
 
-/* Tablet (Adaptive) */
-- Switches between 1-2 columns based on width
-- Touch-optimized interactions
-- Maintains mobile navigation pattern
-```
 
-### 🔗 Deep Linking Demo
 
-*Deep link demo GIF coming soon - The deep linking feature works perfectly with the custom `myshoplite://` URL scheme*
-
-#### Test Deep Links:
-```bash
+#
 # iOS Simulator
 xcrun simctl openurl booted "myshoplite://product/1"
-xcrun simctl openurl booted "myshoplite://product/5"
-xcrun simctl openurl booted "myshoplite://product/10"
+
+# Web
 
 # Android Emulator
 adb shell am start -W -a android.intent.action.VIEW \
   -d "myshoplite://product/1" com.electronicEcomm
 ```
+
 
 #### Deep Link Flow:
 1. **App Closed**: Opens app → Navigates directly to product
@@ -564,6 +567,33 @@ xcrun simctl openurl booted "myshoplite://product/12"
 ```bash
 adb shell am start -W -a android.intent.action.VIEW -d "myshoplite://product/12" com.electronicEcomm
 ```
+
+#### Web Browser
+For web testing, deep links work through URL navigation:
+
+1. **Direct URL Access**:
+   ```
+   http://localhost:3001/product/12
+   http://localhost:3001/product/5
+   http://localhost:3001/product/1
+   ```
+
+2. **JavaScript Testing** (in browser console):
+   ```javascript
+   // Navigate to specific product
+   window.location.href = '/product/12';
+
+   // Or using history API
+   window.history.pushState({}, '', '/product/12');
+   ```
+
+3. **Custom Protocol Testing** (if configured):
+   ```bash
+   # Open browser and navigate to:
+   myshoplite://product/12
+   ```
+
+**Note:** Web deep linking works through standard URL routing. The custom `myshoplite://` scheme is primarily for mobile apps, while web uses standard HTTP(S) URLs.
 
 ### Debug Logging
 Check console for deep link handling:
