@@ -2,9 +2,9 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import AppNavigator from './src/navigation/AppNavigator';
-import { LoadingProvider } from './src/context/LoadingContext';
-import { FavoritesProvider } from './src/context/FavoritesContext';
+import AppNavigator from './navigation/AppNavigator';
+import { LoadingProvider } from './context/LoadingContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';

@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Colors from './src/utils/colors';
-import ApiService from './src/services/api';
-import { Product } from './src/types';
-import ProductDetailsScreenWeb from './src/screens/ProductDetailsScreen.web';
-import { FavoritesProvider } from './src/context/FavoritesContext.web';
-import ProductCardSkeleton from './src/components/ProductCardSkeleton';
-import ProductDetailSkeleton from './src/components/ProductDetailSkeleton';
-import OptimizedImage from './src/components/OptimizedImage';
+import Colors from './utils/colors';
+import ApiService from './services/api';
+import { Product } from './types';
+import ProductDetailsScreenWeb from './screens/ProductDetailsScreen.web';
+import { FavoritesProvider } from './context/FavoritesContext.web';
+import ProductCardSkeleton from './components/ProductCardSkeleton';
+import ProductDetailSkeleton from './components/ProductDetailSkeleton';
+import OptimizedImage from './components/OptimizedImage';
+import { styles } from './styles/AppWebStyles';
 
 function App(): React.JSX.Element {
   console.log('App rendering...');
@@ -320,14 +321,7 @@ function App(): React.JSX.Element {
             onLoad={() => console.log('Image loaded:', name)}
             onError={() => console.log('Image failed to load:', name)}
           />
-          <TouchableOpacity
-            style={styles.favoriteButton}
-            onPress={() => toggleFavorite(item.id)}
-          >
-            <Text style={styles.favoriteIcon}>
-              {isFavorite ? '❤️' : '🤍'}
-            </Text>
-          </TouchableOpacity>
+
         </View>
         <View style={styles.productInfo}>
           <Text style={styles.productName} numberOfLines={2}>{name}</Text>
@@ -378,7 +372,7 @@ function App(): React.JSX.Element {
       <FavoritesProvider>
         <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>ElectronicEcomm</Text>
+          <Text style={styles.headerTitle}>ElectronicEcom</Text>
 
           {/* Tab Navigation */}
           <View style={styles.tabContainer}>
@@ -453,7 +447,7 @@ function App(): React.JSX.Element {
             <>
               {favorites.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyText}>💔 No favorites yet</Text>
+                  <Text style={styles.emptyText}>No favorites yet</Text>
                   <Text style={styles.emptySubText}>
                     Tap the heart icon on products to add them to your favorites!
                   </Text>
@@ -479,260 +473,5 @@ function App(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  splashContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.background,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: Colors.inactive,
-    marginBottom: 40,
-  },
-  loading: {
-    fontSize: 14,
-    color: Colors.primary,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    backgroundColor: Colors.primary,
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.textLight,
-    marginBottom: 15,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 25,
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    alignItems: 'center',
-  },
-  activeTab: {
-    backgroundColor: Colors.textLight,
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.textLight,
-  },
-  activeTabText: {
-    color: Colors.primary,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 10,
-  },
-  description: {
-    fontSize: 16,
-    color: Colors.inactive,
-    marginBottom: 30,
-  },
-  categoryCard: {
-    backgroundColor: Colors.card,
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 8,
-  },
-  categoryDesc: {
-    fontSize: 14,
-    color: Colors.inactive,
-  },
-  searchInput: {
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 20,
-    fontSize: 16,
-    color: Colors.text,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: Colors.inactive,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  errorText: {
-    fontSize: 16,
-    color: Colors.error,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  retryButton: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: Colors.textLight,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  productsList: {
-    paddingBottom: 20,
-  },
-  row: {
-    justifyContent: 'space-between',
-    paddingHorizontal: 4,
-  },
-  productCard: {
-    backgroundColor: Colors.card,
-    borderRadius: 8,
-    margin: 6,
-    padding: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    width: '47%',
-  },
-  productCardMobile: {
-    backgroundColor: Colors.card,
-    borderRadius: 8,
-    margin: 8,
-    padding: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    width: '100%',
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  productImage: {
-    width: '100%',
-    height: 160,
-    borderRadius: 8,
-    marginBottom: 12,
-    backgroundColor: Colors.background,
-  },
-  favoriteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  favoriteIcon: {
-    fontSize: 18,
-  },
-  productInfo: {
-    alignItems: 'flex-start',
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 8,
-    textAlign: 'left',
-  },
-  productPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.primary,
-  },
-  productCategory: {
-    fontSize: 12,
-    color: Colors.inactive,
-    marginBottom: 8,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  rating: {
-    fontSize: 12,
-    color: Colors.text,
-  },
-  stock: {
-    fontSize: 10,
-    color: Colors.success,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 10,
-  },
-  emptySubText: {
-    fontSize: 16,
-    color: Colors.inactive,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-});
 
 export default App;
