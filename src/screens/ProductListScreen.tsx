@@ -41,7 +41,6 @@ const ProductListScreen: React.FC = () => {
 
       // Clear cache and fetch fresh data
       await AsyncStorage.removeItem('electronicEcomm_products');
-      console.log('Cache cleared, fetching fresh data...');
 
       const fetchedProducts = await ApiService.fetchProducts();
       setProducts(fetchedProducts);
@@ -49,7 +48,6 @@ const ProductListScreen: React.FC = () => {
 
       // Cache the fresh products
       await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(fetchedProducts));
-      console.log('Fresh products cached successfully');
     } catch (err) {
       setError('Failed to refresh products. Please try again.');
       console.error('Error refreshing products:', err);
@@ -70,21 +68,18 @@ const ProductListScreen: React.FC = () => {
         const products = JSON.parse(cachedProducts);
         setProducts(products);
         setFilteredProducts(products);
-        console.log('Loaded products from cache');
         setIsLoading(false);
         setGlobalLoading(false);
         return;
       }
 
       // If no cache, fetch from API and cache the result
-      console.log('Fetching products from API...');
       const fetchedProducts = await ApiService.fetchProducts();
       setProducts(fetchedProducts);
       setFilteredProducts(fetchedProducts);
 
       // Cache the products
       await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(fetchedProducts));
-      console.log('Products cached successfully');
     } catch (err) {
       setError('Failed to load products. Please try again.');
       console.error('Error loading products:', err);
@@ -97,7 +92,6 @@ const ProductListScreen: React.FC = () => {
           setProducts(products);
           setFilteredProducts(products);
           setError(null); // Clear error since we have cached data
-          console.log('Loaded products from cache as fallback');
         }
       } catch (cacheError) {
         console.error('Error loading from cache:', cacheError);
@@ -130,8 +124,8 @@ const ProductListScreen: React.FC = () => {
             containerStyle={styles.imageContainer}
             resizeMode="cover"
             borderRadius={8}
-            onLoad={() => console.log('Image loaded:', item.name)}
-            onError={() => console.log('Image failed to load:', item.name)}
+            onLoad={() => {}}
+            onError={() => {}}
             priority="normal"
           />
           {/* <TouchableOpacity

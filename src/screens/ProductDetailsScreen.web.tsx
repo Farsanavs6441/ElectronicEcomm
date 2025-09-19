@@ -30,10 +30,8 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({ produ
       if (NotificationAPI && NotificationAPI.permission === 'granted') {
         new NotificationAPI(title, { body });
       } else {
-        console.log(`${title}: ${body}`);
-      }
+        }
     } else {
-      console.log(`${title}: ${body}`);
     }
   };
 
@@ -116,8 +114,8 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({ produ
             resizeMode="contain"
             borderRadius={0}
             showShimmer={true}
-            onLoad={() => console.log('Product image loaded:', product.name)}
-            onError={() => console.log('Product image failed to load:', product.name)}
+            onLoad={() => {}}
+            onError={() => {}}
           />
 
           <View style={styles.content}>

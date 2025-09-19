@@ -43,19 +43,16 @@ const FavouritesScreen: React.FC = () => {
       if (cachedProducts) {
         const products = JSON.parse(cachedProducts);
         setAllProducts(products);
-        console.log('Loaded products from cache');
         setGlobalLoading(false);
         return;
       }
 
       // If no cache, fetch from API and cache the result
-      console.log('Fetching products from API...');
       const products = await ApiService.fetchProducts();
       setAllProducts(products);
 
       // Cache the products
       await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(products));
-      console.log('Products cached successfully');
     } catch (error) {
       console.error('Error loading products:', error);
       // Try to load from cache as fallback
@@ -64,7 +61,6 @@ const FavouritesScreen: React.FC = () => {
         if (cachedProducts) {
           const products = JSON.parse(cachedProducts);
           setAllProducts(products);
-          console.log('Loaded products from cache as fallback');
         }
       } catch (cacheError) {
         console.error('Error loading from cache:', cacheError);

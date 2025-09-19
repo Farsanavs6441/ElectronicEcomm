@@ -30,8 +30,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             source={{ uri: product.image, cache: 'force-cache' }}
             style={styles.image}
             resizeMode="cover"
-            onLoad={() => console.log('Image loaded:', product.name)}
-            onError={() => console.log('Image failed to load:', product.name)}
+            onLoad={() => {}}
+            onError={() => {}}
             testID={testID ? 'product-image' : undefined}
           />
           {/* {showFavoriteIcon && onFavoritePress && (

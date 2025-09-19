@@ -89,8 +89,8 @@ const ProductDetailsScreen: React.FC = () => {
         containerStyle={undefined}
         resizeMode="cover"
         borderRadius={0}
-        onLoad={() => console.log('Product image loaded:', product.name)}
-        onError={() => console.log('Product image failed to load:', product.name)}
+        onLoad={() => {}}
+        onError={() => {}}
         priority="high"
       />
 
