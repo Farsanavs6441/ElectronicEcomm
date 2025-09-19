@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, ViewStyle, DimensionValue } from 'react-native';
+import {
+  View,
+  Animated,
+  StyleSheet,
+  ViewStyle,
+  DimensionValue,
+} from 'react-native';
 
 interface ShimmerPlaceholderProps {
   width?: DimensionValue;
@@ -42,7 +48,7 @@ const ShimmerPlaceholder: React.FC<ShimmerPlaceholderProps> = ({
           duration: 800,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
 
     // Moving gradient animation
@@ -51,7 +57,7 @@ const ShimmerPlaceholder: React.FC<ShimmerPlaceholderProps> = ({
         toValue: 100,
         duration: 2000,
         useNativeDriver: true,
-      })
+      }),
     );
 
     shimmerAnimation.start();

@@ -1,5 +1,12 @@
-import { favoritesReducer, initialState, FavoritesState } from '../favoritesReducer';
-import { favoritesActionCreators, FAVORITES_ACTIONS } from '../favoritesActions';
+import {
+  favoritesReducer,
+  initialState,
+  FavoritesState,
+} from '../favoritesReducer';
+import {
+  favoritesActionCreators,
+  FAVORITES_ACTIONS,
+} from '../favoritesActions';
 
 describe('Favorites Store', () => {
   describe('Action Creators', () => {

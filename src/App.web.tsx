@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Colors from './utils/colors';
 import ApiService from './services/api';
@@ -25,9 +31,15 @@ function AppContent(): React.JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [screenWidth, setScreenWidth] = React.useState(window.innerWidth);
   const [favorites, setFavorites] = React.useState<string[]>([]);
-  const [activeTab, setActiveTab] = React.useState<'products' | 'favorites'>('products');
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
-  const [currentScreen, setCurrentScreen] = React.useState<'home' | 'productDetail'>('home');
+  const [activeTab, setActiveTab] = React.useState<'products' | 'favorites'>(
+    'products',
+  );
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(
+    null,
+  );
+  const [currentScreen, setCurrentScreen] = React.useState<
+    'home' | 'productDetail'
+  >('home');
 
   React.useEffect(() => {
     console.log('App mounting with URL:', window.location.pathname);
@@ -70,7 +82,12 @@ function AppContent(): React.JSX.Element {
 
         // Check if we need to load a different product
         if (!selectedProduct || selectedProduct.id !== productId) {
-          console.log('Loading new product:', productId, 'Current product:', selectedProduct?.id);
+          console.log(
+            'Loading new product:',
+            productId,
+            'Current product:',
+            selectedProduct?.id,
+          );
           openProductDetailById(productId);
         } else {
           console.log('Product already loaded:', productId);
@@ -138,7 +155,12 @@ function AppContent(): React.JSX.Element {
   }, [handleDeepLink]);
 
   const openProductDetailById = async (productId: string) => {
-    console.log('openProductDetailById called with ID:', productId, 'Type:', typeof productId);
+    console.log(
+      'openProductDetailById called with ID:',
+      productId,
+      'Type:',
+      typeof productId,
+    );
     try {
       setLoading(true);
       setError(null);
@@ -148,10 +170,18 @@ function AppContent(): React.JSX.Element {
 
       // First try to find in existing products
       if (products.length > 0) {
-        product = products.find(p => {
-          console.log('Comparing:', p.id, 'with', productId, 'Match:', p.id === productId);
-          return p.id === productId;
-        }) || null;
+        product =
+          products.find(p => {
+            console.log(
+              'Comparing:',
+              p.id,
+              'with',
+              productId,
+              'Match:',
+              p.id === productId,
+            );
+            return p.id === productId;
+          }) || null;
         console.log('Found in existing products:', !!product);
       }
 
@@ -162,14 +192,25 @@ function AppContent(): React.JSX.Element {
         console.log('Fetched products count:', fetchedProducts.length);
 
         // Log first few products to see their IDs
-        console.log('First 5 product IDs:', fetchedProducts.slice(0, 5).map(p => ({ id: p.id, name: p.name })));
+        console.log(
+          'First 5 product IDs:',
+          fetchedProducts.slice(0, 5).map(p => ({ id: p.id, name: p.name })),
+        );
 
         setProducts(fetchedProducts);
         setFilteredProducts(fetchedProducts);
-        product = fetchedProducts.find(p => {
-          console.log('Comparing fetched:', p.id, 'with', productId, 'Match:', p.id === productId);
-          return p.id === productId;
-        }) || null;
+        product =
+          fetchedProducts.find(p => {
+            console.log(
+              'Comparing fetched:',
+              p.id,
+              'with',
+              productId,
+              'Match:',
+              p.id === productId,
+            );
+            return p.id === productId;
+          }) || null;
         console.log('Found in fetched products:', !!product);
       }
 
@@ -179,12 +220,22 @@ function AppContent(): React.JSX.Element {
         setCurrentScreen('productDetail');
         console.log('Deep link successful - navigating to product:', productId);
         // Update URL without page reload (only if different)
-        if (typeof window !== 'undefined' && window.location.pathname !== `/product/${productId}`) {
-          (window as any).history.replaceState(null, '', `/product/${productId}`);
+        if (
+          typeof window !== 'undefined' &&
+          window.location.pathname !== `/product/${productId}`
+        ) {
+          (window as any).history.replaceState(
+            null,
+            '',
+            `/product/${productId}`,
+          );
         }
       } else {
         console.error('Product not found:', productId);
-        console.log('Available product IDs:', products.map(p => p.id));
+        console.log(
+          'Available product IDs:',
+          products.map(p => p.id),
+        );
         setError(`Product with ID "${productId}" not found`);
         setCurrentScreen('home');
         setSelectedProduct(null);
@@ -219,13 +270,15 @@ function AppContent(): React.JSX.Element {
 
   const saveFavorites = (newFavorites: string[]) => {
     try {
-      localStorage.setItem('electronicEcomm_favorites', JSON.stringify(newFavorites));
+      localStorage.setItem(
+        'electronicEcomm_favorites',
+        JSON.stringify(newFavorites),
+      );
       setFavorites(newFavorites);
     } catch (error) {
       console.error('Error saving favorites:', error);
     }
   };
-
 
   const openProductDetail = (product: Product) => {
     setSelectedProduct(product);
@@ -258,9 +311,11 @@ function AppContent(): React.JSX.Element {
       const fetchedProducts = await ApiService.fetchProducts();
 
       // Ensure we have valid product data
-      const validProducts = Array.isArray(fetchedProducts) ? fetchedProducts.filter(product =>
-        product && typeof product === 'object' && product.id
-      ) : [];
+      const validProducts = Array.isArray(fetchedProducts)
+        ? fetchedProducts.filter(
+            product => product && typeof product === 'object' && product.id,
+          )
+        : [];
 
       setProducts(validProducts);
       setFilteredProducts(validProducts);
@@ -276,9 +331,11 @@ function AppContent(): React.JSX.Element {
   };
 
   React.useEffect(() => {
-    const filtered = products.filter(product =>
-      product && product.name &&
-      product.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = products.filter(
+      product =>
+        product &&
+        product.name &&
+        product.name.toLowerCase().includes(searchText.toLowerCase()),
     );
     setFilteredProducts(filtered);
   }, [searchText, products]);
@@ -305,22 +362,26 @@ function AppContent(): React.JSX.Element {
     const cardStyle = isMobile ? styles.productCardMobile : styles.productCard;
 
     return (
-      <TouchableOpacity style={cardStyle} onPress={() => openProductDetail(item)}>
+      <TouchableOpacity
+        style={cardStyle}
+        onPress={() => openProductDetail(item)}
+      >
         <View style={styles.imageContainer}>
           <OptimizedImage
             source={{ uri: image }}
             style={styles.productImage}
             containerStyle={styles.imageContainer}
-            resizeMode="contain"
+            resizeMode='contain'
             borderRadius={8}
             showShimmer={true}
             onLoad={() => console.log('Image loaded:', name)}
             onError={() => console.log('Image failed to load:', name)}
           />
-
         </View>
         <View style={styles.productInfo}>
-          <Text style={styles.productName} numberOfLines={2}>{name}</Text>
+          <Text style={styles.productName} numberOfLines={2}>
+            {name}
+          </Text>
           <Text style={styles.productPrice}>${price.toFixed(2)}</Text>
         </View>
       </TouchableOpacity>
@@ -367,118 +428,145 @@ function AppContent(): React.JSX.Element {
     <SafeAreaProvider>
       <FavoritesProvider>
         <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>ElectronicEcom</Text>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>ElectronicEcom</Text>
 
-          {/* Cart Icon */}
-          <TouchableOpacity style={styles.cartButton}>
-            <Text style={styles.cartIcon}>🛒</Text>
-            {cartCount > 0 && (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cartCount}</Text>
-              </View>
+            {/* Cart Icon */}
+            <TouchableOpacity style={styles.cartButton}>
+              <Text style={styles.cartIcon}>🛒</Text>
+              {cartCount > 0 && (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Tab Navigation */}
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === 'products' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('products')}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'products' && styles.activeTabText,
+                  ]}
+                >
+                  Products
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === 'favorites' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('favorites')}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'favorites' && styles.activeTabText,
+                  ]}
+                >
+                  Favorites ({favorites.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.content}>
+            {activeTab === 'products' && (
+              <>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder='Search products...'
+                  value={searchText}
+                  onChangeText={setSearchText}
+                  placeholderTextColor={Colors.placeholder}
+                />
+
+                {loading && (
+                  <FlatList
+                    data={Array(6).fill(null)}
+                    renderItem={() => (
+                      <ProductCardSkeleton isMobile={screenWidth < 1024} />
+                    )}
+                    keyExtractor={(_, index) => `skeleton-${index}`}
+                    numColumns={screenWidth >= 1024 ? 2 : 1}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.productsList}
+                    columnWrapperStyle={screenWidth >= 1024 ? styles.row : null}
+                    key={`skeleton-${
+                      screenWidth >= 1024 ? 'two-columns' : 'one-column'
+                    }`}
+                  />
+                )}
+
+                {error && (
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity
+                      style={styles.retryButton}
+                      onPress={loadProducts}
+                    >
+                      <Text style={styles.retryButtonText}>Retry</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {!loading && !error && (
+                  <FlatList
+                    data={filteredProducts}
+                    renderItem={renderProduct}
+                    keyExtractor={item => item.id}
+                    numColumns={screenWidth >= 1024 ? 2 : 1}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.productsList}
+                    columnWrapperStyle={screenWidth >= 1024 ? styles.row : null}
+                    key={screenWidth >= 1024 ? 'two-columns' : 'one-column'}
+                  />
+                )}
+              </>
             )}
-          </TouchableOpacity>
 
-          {/* Tab Navigation */}
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'products' && styles.activeTab]}
-              onPress={() => setActiveTab('products')}
-            >
-              <Text style={[styles.tabText, activeTab === 'products' && styles.activeTabText]}>
-                Products
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'favorites' && styles.activeTab]}
-              onPress={() => setActiveTab('favorites')}
-            >
-              <Text style={[styles.tabText, activeTab === 'favorites' && styles.activeTabText]}>
-                Favorites ({favorites.length})
-              </Text>
-            </TouchableOpacity>
+            {activeTab === 'favorites' && (
+              <>
+                {favorites.length === 0 ? (
+                  <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>No favorites yet</Text>
+                    <Text style={styles.emptySubText}>
+                      Tap the heart icon on products to add them to your
+                      favorites!
+                    </Text>
+                  </View>
+                ) : (
+                  <FlatList
+                    data={products.filter(product =>
+                      favorites.includes(product.id),
+                    )}
+                    renderItem={renderProduct}
+                    keyExtractor={item => item.id}
+                    numColumns={screenWidth >= 1024 ? 2 : 1}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.productsList}
+                    columnWrapperStyle={screenWidth >= 1024 ? styles.row : null}
+                    key={`favorites-${
+                      screenWidth >= 1024 ? 'two-columns' : 'one-column'
+                    }`}
+                  />
+                )}
+              </>
+            )}
           </View>
         </View>
-
-        <View style={styles.content}>
-          {activeTab === 'products' && (
-            <>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search products..."
-                value={searchText}
-                onChangeText={setSearchText}
-                placeholderTextColor={Colors.placeholder}
-              />
-
-              {loading && (
-                <FlatList
-                  data={Array(6).fill(null)}
-                  renderItem={() => <ProductCardSkeleton isMobile={screenWidth < 1024} />}
-                  keyExtractor={(_, index) => `skeleton-${index}`}
-                  numColumns={screenWidth >= 1024 ? 2 : 1}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.productsList}
-                  columnWrapperStyle={screenWidth >= 1024 ? styles.row : null}
-                  key={`skeleton-${screenWidth >= 1024 ? 'two-columns' : 'one-column'}`}
-                />
-              )}
-
-              {error && (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{error}</Text>
-                  <TouchableOpacity style={styles.retryButton} onPress={loadProducts}>
-                    <Text style={styles.retryButtonText}>Retry</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {!loading && !error && (
-                <FlatList
-                  data={filteredProducts}
-                  renderItem={renderProduct}
-                  keyExtractor={(item) => item.id}
-                  numColumns={screenWidth >= 1024 ? 2 : 1}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.productsList}
-                  columnWrapperStyle={screenWidth >= 1024 ? styles.row : null}
-                  key={screenWidth >= 1024 ? 'two-columns' : 'one-column'}
-                />
-              )}
-            </>
-          )}
-
-          {activeTab === 'favorites' && (
-            <>
-              {favorites.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyText}>No favorites yet</Text>
-                  <Text style={styles.emptySubText}>
-                    Tap the heart icon on products to add them to your favorites!
-                  </Text>
-                </View>
-              ) : (
-                <FlatList
-                  data={products.filter(product => favorites.includes(product.id))}
-                  renderItem={renderProduct}
-                  keyExtractor={(item) => item.id}
-                  numColumns={screenWidth >= 1024 ? 2 : 1}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.productsList}
-                  columnWrapperStyle={screenWidth >= 1024 ? styles.row : null}
-                  key={`favorites-${screenWidth >= 1024 ? 'two-columns' : 'one-column'}`}
-                />
-              )}
-            </>
-          )}
-        </View>
-        </View>
-        </FavoritesProvider>
+      </FavoritesProvider>
     </SafeAreaProvider>
   );
 }
-
 
 function App(): React.JSX.Element {
   return (

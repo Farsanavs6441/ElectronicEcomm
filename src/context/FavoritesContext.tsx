@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface FavoritesContextType {
@@ -10,7 +16,9 @@ interface FavoritesContextType {
   loadFavorites: () => Promise<void>;
 }
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
+const FavoritesContext = createContext<FavoritesContextType | undefined>(
+  undefined,
+);
 
 export const useFavorites = () => {
   const context = useContext(FavoritesContext);
@@ -24,12 +32,16 @@ interface FavoritesProviderProps {
   children: ReactNode;
 }
 
-export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
+export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({
+  children,
+}) => {
   const [favorites, setFavorites] = useState<string[]>([]);
 
   const loadFavorites = async () => {
     try {
-      const savedFavorites = await AsyncStorage.getItem('electronicEcomm_favorites');
+      const savedFavorites = await AsyncStorage.getItem(
+        'electronicEcomm_favorites',
+      );
       if (savedFavorites) {
         setFavorites(JSON.parse(savedFavorites));
       }
@@ -40,7 +52,10 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
   const saveFavorites = async (newFavorites: string[]) => {
     try {
-      await AsyncStorage.setItem('electronicEcomm_favorites', JSON.stringify(newFavorites));
+      await AsyncStorage.setItem(
+        'electronicEcomm_favorites',
+        JSON.stringify(newFavorites),
+      );
       setFavorites(newFavorites);
     } catch (error) {
       console.error('Error saving favorites:', error);
@@ -83,7 +98,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         removeFavorite,
         toggleFavorite,
         isFavorite,
-        loadFavorites
+        loadFavorites,
       }}
     >
       {children}

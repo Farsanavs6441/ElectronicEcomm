@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 import { Product } from '../types';
 
 export interface CartItem {
@@ -70,14 +76,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.product.id === product.id);
+      const existingItem = prevItems.find(
+        item => item.product.id === product.id,
+      );
 
       if (existingItem) {
         // Update quantity if item already exists
         return prevItems.map(item =>
           item.product.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
-            : item
+            : item,
         );
       } else {
         // Add new item
@@ -87,7 +95,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const removeFromCart = (productId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.product.id !== productId));
+    setCartItems(prevItems =>
+      prevItems.filter(item => item.product.id !== productId),
+    );
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
@@ -98,10 +108,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.product.id === productId
-          ? { ...item, quantity }
-          : item
-      )
+        item.product.id === productId ? { ...item, quantity } : item,
+      ),
     );
   };
 
@@ -120,7 +128,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Calculate derived values
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const cartTotal = cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+  const cartTotal = cartItems.reduce(
+    (total, item) => total + item.product.price * item.quantity,
+    0,
+  );
 
   const value: CartContextType = {
     cartItems,

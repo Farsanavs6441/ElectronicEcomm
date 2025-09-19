@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.bundle.js
+
+# Generated files
+*.generated.*
+
+# Coverage
+coverage/
+
+# Logs
+*.log
+
+# Cache directories
+.npm
+.eslintcache
+
+# Web build
+public/
+
+# Package files
+package-lock.json
+yarn.lock
+
+# TypeScript build info
+*.tsbuildinfo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# React Native specific
+android/
+ios/
+*.bundle
+
+# Configuration files
+.eslintrc.js
+.prettierrc.js
+babel.config.*.js
+metro.config.js
+webpack.config.js
+
+# Documentation
+*.md

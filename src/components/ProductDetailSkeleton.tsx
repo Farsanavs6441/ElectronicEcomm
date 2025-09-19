@@ -6,13 +6,15 @@ interface ProductDetailSkeletonProps {
   showHeader?: boolean;
 }
 
-const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({ showHeader = true }) => {
+const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
+  showHeader = true,
+}) => {
   return (
     <View style={styles.container}>
       {showHeader && (
         <View style={styles.header}>
           <ShimmerPlaceholder width={80} height={40} borderRadius={8} />
-          <ShimmerPlaceholder width="60%" height={20} borderRadius={4} />
+          <ShimmerPlaceholder width='60%' height={20} borderRadius={4} />
           <View style={styles.headerSpacer} />
         </View>
       )}
@@ -20,7 +22,7 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({ showHeade
       <ScrollView style={styles.scrollContainer}>
         {/* Product Image Shimmer */}
         <ShimmerPlaceholder
-          width="100%"
+          width='100%'
           height={400}
           borderRadius={0}
           style={styles.imageShimmer}
@@ -29,13 +31,13 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({ showHeade
         <View style={styles.content}>
           {/* Product Header */}
           <View style={styles.headerRow}>
-            <ShimmerPlaceholder width="70%" height={24} borderRadius={4} />
+            <ShimmerPlaceholder width='70%' height={24} borderRadius={4} />
             <ShimmerPlaceholder width={24} height={24} borderRadius={12} />
           </View>
 
           {/* Price */}
           <ShimmerPlaceholder
-            width="30%"
+            width='30%'
             height={28}
             borderRadius={4}
             style={styles.priceShimmer}
@@ -43,7 +45,7 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({ showHeade
 
           {/* Category */}
           <ShimmerPlaceholder
-            width="40%"
+            width='40%'
             height={16}
             borderRadius={4}
             style={styles.categoryShimmer}
@@ -51,13 +53,13 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({ showHeade
 
           {/* Rating and Stock */}
           <View style={styles.ratingContainer}>
-            <ShimmerPlaceholder width="25%" height={16} borderRadius={4} />
-            <ShimmerPlaceholder width="20%" height={14} borderRadius={4} />
+            <ShimmerPlaceholder width='25%' height={16} borderRadius={4} />
+            <ShimmerPlaceholder width='20%' height={14} borderRadius={4} />
           </View>
 
           {/* Description Title */}
           <ShimmerPlaceholder
-            width="35%"
+            width='35%'
             height={18}
             borderRadius={4}
             style={styles.descriptionTitleShimmer}
@@ -65,19 +67,19 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({ showHeade
 
           {/* Description Lines */}
           <ShimmerPlaceholder
-            width="100%"
+            width='100%'
             height={16}
             borderRadius={4}
             style={styles.descriptionLineShimmer}
           />
           <ShimmerPlaceholder
-            width="85%"
+            width='85%'
             height={16}
             borderRadius={4}
             style={styles.descriptionLineShimmer}
           />
           <ShimmerPlaceholder
-            width="60%"
+            width='60%'
             height={16}
             borderRadius={4}
             style={styles.descriptionLineShimmer}
@@ -85,7 +87,7 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({ showHeade
 
           {/* Button */}
           <ShimmerPlaceholder
-            width="100%"
+            width='100%'
             height={60}
             borderRadius={8}
             style={styles.buttonShimmer}

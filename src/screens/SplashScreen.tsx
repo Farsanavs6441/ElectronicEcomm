@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Animated, Easing } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Animated,
+  Easing,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import Colors from '../utils/colors';
 
-type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Splash'>;
+type SplashScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Splash'
+>;
 
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation<SplashScreenNavigationProp>();
@@ -32,7 +42,7 @@ const SplashScreen: React.FC = () => {
         duration: 800,
         easing: Easing.out(Easing.quad),
         useNativeDriver: true,
-      })
+      }),
     ]).start();
 
     const timer = setTimeout(() => {
@@ -49,14 +59,14 @@ const SplashScreen: React.FC = () => {
           styles.content,
           {
             opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }]
-          }
+            transform: [{ scale: scaleAnim }],
+          },
         ]}
       >
         <Text style={styles.title}>ElectronicEcom</Text>
         <Animated.View
           style={{
-            transform: [{ translateY: slideAnim }]
+            transform: [{ translateY: slideAnim }],
           }}
         >
           <Text style={styles.subtitle}>Your Electronics Store</Text>

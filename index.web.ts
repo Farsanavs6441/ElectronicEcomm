@@ -1,4 +1,4 @@
-import {AppRegistry} from 'react-native';
+import { AppRegistry } from 'react-native';
 import App from './src/App.web';
 import appConfig from './app.json';
 
@@ -12,5 +12,7 @@ if (rootTag) {
     rootTag,
   });
 } else {
-  console.error('Root element not found. Make sure you have a div with id="root" in your HTML.');
+  console.error(
+    'Root element not found. Make sure you have a div with id="root" in your HTML.',
+  );
 }

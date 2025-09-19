@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useRef, useEffect } from 'react';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, Linking } from 'react-native';
@@ -34,23 +34,21 @@ const TabNavigator = () => {
       }}
     >
       <Tab.Screen
-        name="ProductList"
+        name='ProductList'
         component={ProductListScreen}
         options={{
           title: 'Products',
           tabBarLabel: 'Products',
           tabBarIcon: ({ focused, color }) => (
-            <Text style={{ fontSize: 24, color }}>
-              {focused ? '🛍️' : '🛒'}
-            </Text>
+            <Text style={{ fontSize: 24, color }}>{focused ? '🛍️' : '🛒'}</Text>
           ),
         }}
       />
       <Tab.Screen
-        name="Favourites"
+        name='Favourites'
         component={FavouritesScreen}
         options={{
-          title: 'My Favourites',
+          title: 'Favourites',
           tabBarLabel: 'Favourites',
           tabBarIcon: ({ focused, color }) => (
             <Text style={{ fontSize: 24, color: focused ? '#FF3B30' : color }}>
@@ -64,33 +62,90 @@ const TabNavigator = () => {
 };
 
 const linking = {
-  prefixes: ['https://localhost:3002', 'http://localhost:3002', 'myshoplite://'],
+  prefixes: [
+    'myshoplite://',
+  ],
   config: {
     screens: {
       Splash: 'splash',
-      Main: 'main',
+      Main: {
+        path: 'main',
+        screens: {
+          ProductList: 'products',
+          Favourites: 'favourites',
+        },
+      },
       ProductDetails: 'product/:productId',
     },
+  },
+  async getInitialURL() {
+    const url = await Linking.getInitialURL();
+    console.log('🔗 getInitialURL called, result:', url);
+
+    // If it's a product deep link, we want to handle it specially
+    if (url && url.includes('myshoplite://product/')) {
+      console.log('🎯 Product deep link detected:', url);
+    }
+
+    return url;
+  },
+  subscribe(listener: (url: string) => void) {
+    const onReceiveURL = ({ url }: { url: string }) => {
+      console.log('🔗 Deep link URL received in subscribe:', url);
+      listener(url);
+    };
+
+    const linkingListener = Linking.addEventListener('url', onReceiveURL);
+
+    return () => {
+      linkingListener?.remove();
+    };
   },
 };
 
 const AppNavigator: React.FC = () => {
-  React.useEffect(() => {
-    const handleDeepLink = (url: string) => {
-      console.log('Deep link received:', url);
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+
+  useEffect(() => {
+    const checkInitialURL = async () => {
+      try {
+        const url = await Linking.getInitialURL();
+        if (url) {
+          console.log('🔗 Initial URL detected:', url);
+          handleDeepLink(url);
+        }
+      } catch (error) {
+        console.error('❌ Error checking initial URL:', error);
+      }
     };
 
-    // Get the initial URL
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        console.log('Initial URL:', url);
-        handleDeepLink(url);
-      }
-    });
+    const handleDeepLink = (url: string) => {
+      console.log('🎯 Processing deep link:', url);
 
-    // Listen for deep links while app is running
+      const productMatch = url.match(/myshoplite:\/\/product\/(.+)/);
+      if (productMatch) {
+        const productId = productMatch[1];
+        console.log('📱 Product deep link detected, productId:', productId);
+
+        if (navigationRef.current?.isReady()) {
+          console.log('✅ Navigation ready, navigating to ProductDetails');
+          navigationRef.current.navigate('ProductDetails', { productId });
+        } else {
+          console.log('⏳ Navigation not ready, waiting...');
+          setTimeout(() => {
+            if (navigationRef.current?.isReady()) {
+              console.log('✅ Navigation ready after timeout, navigating to ProductDetails');
+              navigationRef.current.navigate('ProductDetails', { productId });
+            }
+          }, 1000);
+        }
+      }
+    };
+
+    checkInitialURL();
+
     const linkingListener = Linking.addEventListener('url', ({ url }) => {
-      console.log('URL event received:', url);
+      console.log('🔗 URL event received:', url);
       handleDeepLink(url);
     });
 
@@ -101,15 +156,21 @@ const AppNavigator: React.FC = () => {
 
   return (
     <NavigationContainer
+      ref={navigationRef}
       linking={linking}
-      onStateChange={(state) => {
-        console.log('Navigation state changed:', JSON.stringify(state, null, 2));
+      onStateChange={state => {
+        console.log(
+          '🧭 Navigation state changed:',
+          JSON.stringify(state, null, 2),
+        );
       }}
       onReady={() => {
-        console.log('Navigation container ready');
-      }}>
+        console.log('🚀 Navigation container ready');
+      }}
+      fallback={<Text>Loading...</Text>}
+    >
       <Stack.Navigator
-        initialRouteName="Splash"
+        initialRouteName='Splash'
         screenOptions={{
           headerStyle: {
             backgroundColor: Colors.primary,
@@ -121,17 +182,17 @@ const AppNavigator: React.FC = () => {
         }}
       >
         <Stack.Screen
-          name="Splash"
+          name='Splash'
           component={SplashScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Main"
+          name='Main'
           component={TabNavigator}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="ProductDetails"
+          name='ProductDetails'
           component={ProductDetailsScreen}
           options={{
             title: 'Product Details',

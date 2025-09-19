@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 
 interface FavoritesContextType {
   favorites: string[];
@@ -9,7 +15,9 @@ interface FavoritesContextType {
   loadFavorites: () => Promise<void>;
 }
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
+const FavoritesContext = createContext<FavoritesContextType | undefined>(
+  undefined,
+);
 
 export const useFavorites = () => {
   const context = useContext(FavoritesContext);
@@ -23,13 +31,17 @@ interface FavoritesProviderProps {
   children: ReactNode;
 }
 
-export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
+export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({
+  children,
+}) => {
   const [favorites, setFavorites] = useState<string[]>([]);
 
   const loadFavorites = async () => {
     try {
       if (typeof window !== 'undefined') {
-        const savedFavorites = localStorage.getItem('electronicEcomm_favorites');
+        const savedFavorites = localStorage.getItem(
+          'electronicEcomm_favorites',
+        );
         if (savedFavorites) {
           setFavorites(JSON.parse(savedFavorites));
         }
@@ -42,7 +54,10 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   const saveFavorites = async (newFavorites: string[]) => {
     try {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('electronicEcomm_favorites', JSON.stringify(newFavorites));
+        localStorage.setItem(
+          'electronicEcomm_favorites',
+          JSON.stringify(newFavorites),
+        );
       }
       setFavorites(newFavorites);
     } catch (error) {
@@ -86,7 +101,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         removeFavorite,
         toggleFavorite,
         isFavorite,
-        loadFavorites
+        loadFavorites,
       }}
     >
       {children}

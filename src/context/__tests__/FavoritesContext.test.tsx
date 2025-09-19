@@ -18,24 +18,33 @@ const TestComponent: React.FC = () => {
     removeFavorite,
     toggleFavorite,
     isFavorite,
-    loadFavorites
+    loadFavorites,
   } = useFavorites();
 
   return (
     <>
-      <Text testID="favorites-count">{favorites.length}</Text>
-      <Text testID="favorites-list">{favorites.join(',')}</Text>
-      <Text testID="is-favorite-1">{isFavorite('1').toString()}</Text>
-      <TouchableOpacity testID="add-favorite-1" onPress={() => addFavorite('1')}>
+      <Text testID='favorites-count'>{favorites.length}</Text>
+      <Text testID='favorites-list'>{favorites.join(',')}</Text>
+      <Text testID='is-favorite-1'>{isFavorite('1').toString()}</Text>
+      <TouchableOpacity
+        testID='add-favorite-1'
+        onPress={() => addFavorite('1')}
+      >
         <Text>Add 1</Text>
       </TouchableOpacity>
-      <TouchableOpacity testID="remove-favorite-1" onPress={() => removeFavorite('1')}>
+      <TouchableOpacity
+        testID='remove-favorite-1'
+        onPress={() => removeFavorite('1')}
+      >
         <Text>Remove 1</Text>
       </TouchableOpacity>
-      <TouchableOpacity testID="toggle-favorite-2" onPress={() => toggleFavorite('2')}>
+      <TouchableOpacity
+        testID='toggle-favorite-2'
+        onPress={() => toggleFavorite('2')}
+      >
         <Text>Toggle 2</Text>
       </TouchableOpacity>
-      <TouchableOpacity testID="load-favorites" onPress={() => loadFavorites()}>
+      <TouchableOpacity testID='load-favorites' onPress={() => loadFavorites()}>
         <Text>Load</Text>
       </TouchableOpacity>
     </>
@@ -46,7 +55,7 @@ const renderWithProvider = () => {
   return render(
     <FavoritesProvider>
       <TestComponent />
-    </FavoritesProvider>
+    </FavoritesProvider>,
   );
 };
 
@@ -60,7 +69,9 @@ describe('FavoritesContext', () => {
   });
 
   it('throws error when useFavorites is used outside provider', () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     expect(() => {
       render(<TestComponent />);
@@ -80,7 +91,9 @@ describe('FavoritesContext', () => {
   });
 
   it('loads favorites from AsyncStorage on mount', async () => {
-    mockAsyncStorage.getItem.mockResolvedValueOnce(JSON.stringify(['1', '2', '3']));
+    mockAsyncStorage.getItem.mockResolvedValueOnce(
+      JSON.stringify(['1', '2', '3']),
+    );
 
     const { getByTestId } = renderWithProvider();
 
@@ -90,7 +103,9 @@ describe('FavoritesContext', () => {
       expect(getByTestId('is-favorite-1')).toHaveTextContent('true');
     });
 
-    expect(mockAsyncStorage.getItem).toHaveBeenCalledWith('electronicEcomm_favorites');
+    expect(mockAsyncStorage.getItem).toHaveBeenCalledWith(
+      'electronicEcomm_favorites',
+    );
   });
 
   it('adds a favorite successfully', async () => {
@@ -106,7 +121,7 @@ describe('FavoritesContext', () => {
 
     expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
       'electronicEcomm_favorites',
-      JSON.stringify(['1'])
+      JSON.stringify(['1']),
     );
   });
 
@@ -146,7 +161,7 @@ describe('FavoritesContext', () => {
 
     expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
       'electronicEcomm_favorites',
-      JSON.stringify(['2'])
+      JSON.stringify(['2']),
     );
   });
 
@@ -179,7 +194,9 @@ describe('FavoritesContext', () => {
   });
 
   it('handles AsyncStorage errors gracefully', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
     mockAsyncStorage.getItem.mockRejectedValueOnce(new Error('Storage error'));
 
     const { getByTestId } = renderWithProvider();
@@ -188,12 +205,17 @@ describe('FavoritesContext', () => {
       expect(getByTestId('favorites-count')).toHaveTextContent('0');
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Error loading favorites:', expect.any(Error));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error loading favorites:',
+      expect.any(Error),
+    );
     consoleSpy.mockRestore();
   });
 
   it('handles save errors gracefully', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
     mockAsyncStorage.setItem.mockRejectedValueOnce(new Error('Save error'));
 
     const { getByTestId } = renderWithProvider();
@@ -201,7 +223,10 @@ describe('FavoritesContext', () => {
     fireEvent.press(getByTestId('add-favorite-1'));
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Error saving favorites:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error saving favorites:',
+        expect.any(Error),
+      );
     });
 
     consoleSpy.mockRestore();

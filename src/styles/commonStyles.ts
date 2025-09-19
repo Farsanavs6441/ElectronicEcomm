@@ -161,12 +161,14 @@ export const commonStyles = StyleSheet.create({
     color: '#333',
   },
 
-  // Common spacing
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
+  // Note: spacing values should be used as constants, not as styles
+
+  // Product list styles
+  productsList: {
+    paddingBottom: 20,
+  },
+  row: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
   },
 });

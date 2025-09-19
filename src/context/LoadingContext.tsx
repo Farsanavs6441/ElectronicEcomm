@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text, Animated } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+  Animated,
+} from 'react-native';
 import Colors from '../utils/colors';
 
 interface LoadingContextType {
@@ -23,7 +29,9 @@ interface LoadingProviderProps {
   children: ReactNode;
 }
 
-export const LoadingProvider: React.FC<LoadingProviderProps> = ({ children }) => {
+export const LoadingProvider: React.FC<LoadingProviderProps> = ({
+  children,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
 
@@ -55,14 +63,18 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({ children }) =>
   };
 
   return (
-    <LoadingContext.Provider value={{ isLoading, setLoading, showLoader, hideLoader }}>
+    <LoadingContext.Provider
+      value={{ isLoading, setLoading, showLoader, hideLoader }}
+    >
       {children}
       {isLoading && (
         <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
           <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size='large' color={Colors.primary} />
             <Text style={styles.loadingText}>Loading...</Text>
-            <Text style={styles.loadingSubtext}>Please wait while we fetch your data</Text>
+            <Text style={styles.loadingSubtext}>
+              Please wait while we fetch your data
+            </Text>
             <View style={styles.dotsContainer}>
               <Text style={styles.dot}>•</Text>
               <Text style={styles.dot}>•</Text>

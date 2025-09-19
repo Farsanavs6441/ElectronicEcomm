@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Product } from '../types';
 import ApiService from '../services/api';
 import { useFavorites } from '../context/FavoritesContext.web';
@@ -17,7 +12,10 @@ interface ProductDetailsScreenWebProps {
   onBack: () => void;
 }
 
-const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({ productId, onBack }) => {
+const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({
+  productId,
+  onBack,
+}) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +28,7 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({ produ
       if (NotificationAPI && NotificationAPI.permission === 'granted') {
         new NotificationAPI(title, { body });
       } else {
-        }
+      }
     } else {
     }
   };
@@ -64,7 +62,9 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({ produ
     toggleFavorite(product.id);
 
     // Web notification instead of Alert
-    const message = isCurrentlyFavorite ? 'Removed from favourites' : 'Added to favourites';
+    const message = isCurrentlyFavorite
+      ? 'Removed from favourites'
+      : 'Added to favourites';
     showNotification('Favourites', message);
   };
 
@@ -108,61 +108,63 @@ const ProductDetailsScreenWeb: React.FC<ProductDetailsScreenWebProps> = ({ produ
       </View>
 
       <ScrollView style={styles.scrollContainer}>
-          <OptimizedImage
-            source={{ uri: product.image }}
-            style={styles.productImage}
-            resizeMode="contain"
-            borderRadius={0}
-            showShimmer={true}
-            onLoad={() => {}}
-            onError={() => {}}
-          />
+        <OptimizedImage
+          source={{ uri: product.image }}
+          style={styles.productImage}
+          resizeMode='contain'
+          borderRadius={0}
+          showShimmer={true}
+          onLoad={() => {}}
+          onError={() => {}}
+        />
 
-          <View style={styles.content}>
-            <View style={styles.headerRow}>
-              <Text style={styles.productName}>{product.name}</Text>
-              <TouchableOpacity
-                style={[
-                  styles.favouriteButton,
-                  { backgroundColor: product && isFavorite(product.id) ? '#FF3B30' : '#007AFF' }
-                ]}
-                onPress={toggleFavourite}
-              >
-                <Text style={styles.favouriteButtonText}>
-                  {product && isFavorite(product.id) ? '❤ Remove from Favourites' : '♡ Add to Favourites'}
-                </Text>
-              </TouchableOpacity>
-            </View>
+        <View style={styles.content}>
+          <View style={styles.headerRow}>
+            <Text style={styles.productName}>{product.name}</Text>
+            <TouchableOpacity
+              style={[
+                styles.favouriteButton,
+                {
+                  backgroundColor:
+                    product && isFavorite(product.id) ? '#FF3B30' : '#007AFF',
+                },
+              ]}
+              onPress={toggleFavourite}
+            >
+              <Text style={styles.favouriteButtonText}>
+                {product && isFavorite(product.id)
+                  ? '❤ Remove from Favourites'
+                  : '♡ Add to Favourites'}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-            <Text style={styles.productPrice}>${product.price}</Text>
-            <Text style={styles.productCategory}>{product.category}</Text>
+          <Text style={styles.productPrice}>${product.price}</Text>
+          <Text style={styles.productCategory}>{product.category}</Text>
 
-            {/* <View style={styles.ratingContainer}>
+          {/* <View style={styles.ratingContainer}>
               <Text style={styles.rating}>★ {product.rating}</Text>
               <Text style={[styles.stockStatus, { color: product.inStock ? '#4CAF50' : '#FF3B30' }]}>
                 {product.inStock ? 'In Stock' : 'Out of Stock'}
               </Text> */}
-            {/* </View> */}
+          {/* </View> */}
 
-            <Text style={styles.descriptionTitle}>Description</Text>
-            <Text style={styles.description}>{product.description}</Text>
+          <Text style={styles.descriptionTitle}>Description</Text>
+          <Text style={styles.description}>{product.description}</Text>
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[styles.button, styles.addToCartButton]}
-                onPress={addToCart}
-                disabled={!product.inStock}
-              >
-                <Text style={styles.buttonText}>
-                  Add to Cart
-                </Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.addToCartButton]}
+              onPress={addToCart}
+              disabled={!product.inStock}
+            >
+              <Text style={styles.buttonText}>Add to Cart</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
+      </ScrollView>
     </View>
   );
 };
-
 
 export default ProductDetailsScreenWeb;

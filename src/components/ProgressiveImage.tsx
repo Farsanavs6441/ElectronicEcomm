@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Animated, StyleSheet, ImageStyle, ViewStyle } from 'react-native';
+import {
+  View,
+  Animated,
+  StyleSheet,
+  ImageStyle,
+  ViewStyle,
+} from 'react-native';
 import ShimmerPlaceholder from './ShimmerPlaceholder';
 
 interface ProgressiveImageProps {
@@ -56,17 +62,18 @@ const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
     return originalUrl;
   };
 
-  const imageUrl = typeof style === 'object' && style?.width
-    ? getOptimizedImageUrl(source.uri, style.width as number)
-    : source.uri;
+  const imageUrl =
+    typeof style === 'object' && style?.width
+      ? getOptimizedImageUrl(source.uri, style.width as number)
+      : source.uri;
 
   return (
     <View style={[containerStyle, { borderRadius, overflow: 'hidden' }]}>
       {/* Shimmer placeholder */}
       {loading && (
         <ShimmerPlaceholder
-          width="100%"
-          height="100%"
+          width='100%'
+          height='100%'
           borderRadius={0} // Already handled by container
           style={StyleSheet.absoluteFillObject}
         />

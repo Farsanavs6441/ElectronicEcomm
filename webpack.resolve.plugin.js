@@ -14,12 +14,22 @@ class ResolvePlugin {
         // Handle React Navigation module resolution issues
         if (req && req.includes('@react-navigation')) {
           // Add .js extension if missing
-          if (!req.endsWith('.js') && !req.endsWith('.ts') && !req.endsWith('.tsx')) {
+          if (
+            !req.endsWith('.js') &&
+            !req.endsWith('.ts') &&
+            !req.endsWith('.tsx')
+          ) {
             const newRequest = {
               ...request,
-              request: req + '.js'
+              request: req + '.js',
             };
-            return resolver.doResolve(target, newRequest, null, resolveContext, callback);
+            return resolver.doResolve(
+              target,
+              newRequest,
+              null,
+              resolveContext,
+              callback,
+            );
           }
         }
 
@@ -29,15 +39,21 @@ class ResolvePlugin {
           './useDocumentTitle',
           './useLinking',
           '../MaskedView',
-          '../GestureHandler'
+          '../GestureHandler',
         ];
 
         if (relativeImports.includes(req)) {
           const newRequest = {
             ...request,
-            request: req + '.js'
+            request: req + '.js',
           };
-          return resolver.doResolve(target, newRequest, null, resolveContext, callback);
+          return resolver.doResolve(
+            target,
+            newRequest,
+            null,
+            resolveContext,
+            callback,
+          );
         }
 
         callback();

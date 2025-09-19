@@ -10,7 +10,7 @@ export const initialState: FavoritesState = {
 
 export const favoritesReducer = (
   state: FavoritesState,
-  action: FavoritesAction
+  action: FavoritesAction,
 ): FavoritesState => {
   switch (action.type) {
     case FAVORITES_ACTIONS.SET_FAVORITES:

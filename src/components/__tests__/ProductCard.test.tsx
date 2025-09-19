@@ -25,7 +25,11 @@ describe('ProductCard', () => {
 
   it('renders correctly with required props', () => {
     const { getByText, getByTestId } = render(
-      <ProductCard product={mockProduct} onPress={mockOnPress} testID="product-card" />
+      <ProductCard
+        product={mockProduct}
+        onPress={mockOnPress}
+        testID='product-card'
+      />,
     );
 
     expect(getByText('Test Product')).toBeTruthy();
@@ -35,7 +39,11 @@ describe('ProductCard', () => {
 
   it('calls onPress when product is pressed', () => {
     const { getByTestId } = render(
-      <ProductCard product={mockProduct} onPress={mockOnPress} testID="product-card" />
+      <ProductCard
+        product={mockProduct}
+        onPress={mockOnPress}
+        testID='product-card'
+      />,
     );
 
     fireEvent.press(getByTestId('product-card-button'));
@@ -44,7 +52,11 @@ describe('ProductCard', () => {
 
   it('displays product image with correct source', () => {
     const { getByTestId } = render(
-      <ProductCard product={mockProduct} onPress={mockOnPress} testID="product-card" />
+      <ProductCard
+        product={mockProduct}
+        onPress={mockOnPress}
+        testID='product-card'
+      />,
     );
 
     const image = getByTestId('product-image');
@@ -62,7 +74,7 @@ describe('ProductCard', () => {
         onFavoritePress={mockOnFavoritePress}
         isFavorite={false}
         showFavoriteIcon={true}
-      />
+      />,
     );
 
     // Note: Favorite icon is currently commented out in the component
@@ -77,7 +89,7 @@ describe('ProductCard', () => {
         onPress={mockOnPress}
         onRemove={mockOnRemove}
         showRemoveButton={true}
-      />
+      />,
     );
 
     // Note: Remove button is not currently implemented in the component
@@ -92,7 +104,7 @@ describe('ProductCard', () => {
     };
 
     const { getByText } = render(
-      <ProductCard product={productWithHighPrice} onPress={mockOnPress} />
+      <ProductCard product={productWithHighPrice} onPress={mockOnPress} />,
     );
 
     expect(getByText('$1234.56')).toBeTruthy();
@@ -107,7 +119,7 @@ describe('ProductCard', () => {
     };
 
     const { getByText } = render(
-      <ProductCard product={customProduct} onPress={mockOnPress} />
+      <ProductCard product={customProduct} onPress={mockOnPress} />,
     );
 
     expect(getByText('Custom Product Name')).toBeTruthy();

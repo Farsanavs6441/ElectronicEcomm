@@ -13,7 +13,7 @@ describe('OptimizedImage', () => {
 
   it('renders correctly with default props', () => {
     const { getByTestId } = render(
-      <OptimizedImage source={mockSource} testID="optimized-image" />
+      <OptimizedImage source={mockSource} testID='optimized-image' />,
     );
 
     expect(getByTestId('optimized-image')).toBeTruthy();
@@ -21,7 +21,7 @@ describe('OptimizedImage', () => {
 
   it('shows shimmer when loading by default', () => {
     const component = render(
-      <OptimizedImage source={mockSource} testID="optimized-image" />
+      <OptimizedImage source={mockSource} testID='optimized-image' />,
     );
 
     // Component should render without errors and include shimmer
@@ -33,8 +33,8 @@ describe('OptimizedImage', () => {
       <OptimizedImage
         source={mockSource}
         showShimmer={false}
-        testID="optimized-image"
-      />
+        testID='optimized-image'
+      />,
     );
 
     expect(component.toJSON()).toBeTruthy();
@@ -45,8 +45,8 @@ describe('OptimizedImage', () => {
       <OptimizedImage
         source={mockSource}
         onLoad={mockOnLoad}
-        testID="optimized-image"
-      />
+        testID='optimized-image'
+      />,
     );
 
     const image = getByTestId('optimized-image-img');
@@ -62,8 +62,8 @@ describe('OptimizedImage', () => {
       <OptimizedImage
         source={mockSource}
         onError={mockOnError}
-        testID="optimized-image"
-      />
+        testID='optimized-image'
+      />,
     );
 
     const image = getByTestId('optimized-image-img');
@@ -83,15 +83,13 @@ describe('OptimizedImage', () => {
         source={mockSource}
         style={customStyle}
         containerStyle={customContainerStyle}
-        testID="optimized-image"
-      />
+        testID='optimized-image'
+      />,
     );
 
     const container = getByTestId('optimized-image');
     expect(container.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining(customContainerStyle)
-      ])
+      expect.arrayContaining([expect.objectContaining(customContainerStyle)]),
     );
   });
 
@@ -100,15 +98,13 @@ describe('OptimizedImage', () => {
       <OptimizedImage
         source={mockSource}
         borderRadius={12}
-        testID="optimized-image"
-      />
+        testID='optimized-image'
+      />,
     );
 
     const container = getByTestId('optimized-image');
     expect(container.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ borderRadius: 12 })
-      ])
+      expect.arrayContaining([expect.objectContaining({ borderRadius: 12 })]),
     );
   });
 
@@ -116,9 +112,9 @@ describe('OptimizedImage', () => {
     const { getByTestId } = render(
       <OptimizedImage
         source={mockSource}
-        resizeMode="contain"
-        testID="optimized-image"
-      />
+        resizeMode='contain'
+        testID='optimized-image'
+      />,
     );
 
     const image = getByTestId('optimized-image-img');
@@ -127,7 +123,7 @@ describe('OptimizedImage', () => {
 
   it('handles image source correctly', () => {
     const { getByTestId } = render(
-      <OptimizedImage source={mockSource} testID="optimized-image" />
+      <OptimizedImage source={mockSource} testID='optimized-image' />,
     );
 
     const image = getByTestId('optimized-image-img');
@@ -136,7 +132,7 @@ describe('OptimizedImage', () => {
 
   it('shows error placeholder when image fails to load', async () => {
     const { getByTestId } = render(
-      <OptimizedImage source={mockSource} testID="optimized-image" />
+      <OptimizedImage source={mockSource} testID='optimized-image' />,
     );
 
     const image = getByTestId('optimized-image-img');

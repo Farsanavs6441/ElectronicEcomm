@@ -41,7 +41,9 @@ describe('ApiService', () => {
 
       const products = await ApiService.fetchProducts();
 
-      expect(fetch).toHaveBeenCalledWith('https://mocki.io/v1/c53fb45e-5085-487a-afac-0295f62fb86e');
+      expect(fetch).toHaveBeenCalledWith(
+        'https://mocki.io/v1/c53fb45e-5085-487a-afac-0295f62fb86e',
+      );
       expect(products).toEqual(mockProducts);
     });
 
@@ -51,7 +53,9 @@ describe('ApiService', () => {
         status: 500,
       });
 
-      await expect(ApiService.fetchProducts()).rejects.toThrow('HTTP error! status: 500');
+      await expect(ApiService.fetchProducts()).rejects.toThrow(
+        'HTTP error! status: 500',
+      );
     });
 
     it('throws an error when network request fails', async () => {
@@ -87,7 +91,9 @@ describe('ApiService', () => {
         status: 500,
       });
 
-      await expect(ApiService.fetchProductById('1')).rejects.toThrow('HTTP error! status: 500');
+      await expect(ApiService.fetchProductById('1')).rejects.toThrow(
+        'HTTP error! status: 500',
+      );
     });
   });
 });

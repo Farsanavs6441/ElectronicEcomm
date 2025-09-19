@@ -6,14 +6,16 @@ interface ProductCardSkeletonProps {
   isMobile?: boolean;
 }
 
-const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({ isMobile = false }) => {
+const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
+  isMobile = false,
+}) => {
   const cardStyle = isMobile ? styles.productCardMobile : styles.productCard;
 
   return (
     <View style={cardStyle}>
       {/* Image shimmer */}
       <ShimmerPlaceholder
-        width="100%"
+        width='100%'
         height={160}
         borderRadius={8}
         style={styles.imageShimmer}
@@ -23,7 +25,7 @@ const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({ isMobile = fa
       <View style={styles.productInfo}>
         {/* Product name shimmer */}
         <ShimmerPlaceholder
-          width="80%"
+          width='80%'
           height={16}
           borderRadius={4}
           style={styles.nameShimmer}
@@ -31,7 +33,7 @@ const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({ isMobile = fa
 
         {/* Product price shimmer */}
         <ShimmerPlaceholder
-          width="40%"
+          width='40%'
           height={18}
           borderRadius={4}
           style={styles.priceShimmer}

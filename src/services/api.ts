@@ -10,7 +10,13 @@ export class ApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      return data;
+
+      // Ensure all products have required properties with defaults
+      return data.map((product: any) => ({
+        ...product,
+        inStock: product.inStock !== undefined ? product.inStock : true, // Default to true if not specified
+        rating: product.rating || 4.5, // Default rating if not specified
+      }));
     } catch (error) {
       console.error('Error fetching products:', error);
       throw error;

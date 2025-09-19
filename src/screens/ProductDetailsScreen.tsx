@@ -5,30 +5,28 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
 import ApiService from '../services/api';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCart } from '../context/CartContext';
 import ProductDetailSkeleton from '../components/ProductDetailSkeleton';
 import ProgressiveImage from '../components/ProgressiveImage';
+import CartSuccessAnimation from '../components/CartSuccessAnimation';
 
 type ProductDetailsRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
-type ProductDetailsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ProductDetails'>;
 
 const ProductDetailsScreen: React.FC = () => {
   const route = useRoute<ProductDetailsRouteProp>();
-  const navigation = useNavigation<ProductDetailsNavigationProp>();
   const { productId } = route.params;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCartAnimation, setShowCartAnimation] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCart: addProductToCart, isInCart, getCartItemQuantity } = useCart();
+  const { addToCart: addProductToCart } = useCart();
 
   useEffect(() => {
     loadProduct();
@@ -40,6 +38,11 @@ const ProductDetailsScreen: React.FC = () => {
       setError(null);
       const fetchedProduct = await ApiService.fetchProductById(productId);
       if (fetchedProduct) {
+        console.log('Product loaded:', {
+          name: fetchedProduct.name,
+          inStock: fetchedProduct.inStock,
+          hasInStockProperty: 'inStock' in fetchedProduct
+        });
         setProduct(fetchedProduct);
       } else {
         setError('Product not found');
@@ -54,26 +57,20 @@ const ProductDetailsScreen: React.FC = () => {
 
   const toggleFavourite = () => {
     if (!product) return;
-
-    const isCurrentlyFavorite = isFavorite(product.id);
     toggleFavorite(product.id);
-
-    Alert.alert(
-      'Favourites',
-      isCurrentlyFavorite ? 'Removed from favourites' : 'Added to favourites'
-    );
   };
 
   const addToCart = () => {
+    console.log('Add to cart pressed!', product ? 'Product exists' : 'No product');
     if (product) {
+      console.log('Adding product to cart:', product.name);
       addProductToCart(product);
-      Alert.alert('Success', `${product.name} added to cart!`, [
-        { text: 'Continue Shopping', style: 'default' },
-        { text: 'View Cart', style: 'default', onPress: () => {
-          // TODO: Navigate to cart screen
-        }}
-      ]);
+      setShowCartAnimation(true);
     }
+  };
+
+  const handleAnimationComplete = () => {
+    setShowCartAnimation(false);
   };
 
   if (loading) {
@@ -93,22 +90,34 @@ const ProductDetailsScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <CartSuccessAnimation
+        visible={showCartAnimation}
+        productName={product.name}
+        onAnimationComplete={handleAnimationComplete}
+      />
       <ProgressiveImage
         source={{ uri: product.image }}
         style={styles.productImage}
         containerStyle={undefined}
-        resizeMode="cover"
+        resizeMode='cover'
         borderRadius={0}
         onLoad={() => {}}
         onError={() => {}}
-        priority="high"
+        priority='high'
       />
 
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.productName}>{product.name}</Text>
           <TouchableOpacity onPress={toggleFavourite}>
-            <Text style={[styles.favouriteIcon, { color: product && isFavorite(product.id) ? '#FF3B30' : '#ccc' }]}>
+            <Text
+              style={[
+                styles.favouriteIcon,
+                {
+                  color: product && isFavorite(product.id) ? '#FF3B30' : '#ccc',
+                },
+              ]}
+            >
               {product && isFavorite(product.id) ? '❤' : '♡'}
             </Text>
           </TouchableOpacity>
@@ -126,12 +135,19 @@ const ProductDetailsScreen: React.FC = () => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.button, styles.addToCartButton]}
+            style={[
+              styles.button,
+              styles.addToCartButton,
+              product.inStock === false && styles.disabledButton
+            ]}
             onPress={addToCart}
-            disabled={!product.inStock}
+            disabled={product.inStock === false}
           >
-            <Text style={styles.buttonText}>
-              {'Add to Cart' }
+            <Text style={[
+              styles.buttonText,
+              product.inStock === false && styles.disabledButtonText
+            ]}>
+              {product.inStock === false ? 'Out of Stock' : 'Add to Cart'}
             </Text>
           </TouchableOpacity>
 
@@ -262,6 +278,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+    opacity: 0.6,
+  },
+  disabledButtonText: {
+    color: '#666',
   },
 });
 

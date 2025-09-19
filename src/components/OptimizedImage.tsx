@@ -44,8 +44,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     <View style={[containerStyle, { borderRadius }]} testID={testID}>
       {(loading || error) && showShimmer && (
         <ShimmerPlaceholder
-          width="100%"
-          height="100%"
+          width='100%'
+          height='100%'
           borderRadius={borderRadius}
           style={[StyleSheet.absoluteFillObject, { zIndex: error ? -1 : 1 }]}
         />
@@ -65,12 +65,17 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         onError={handleError}
         testID={testID ? `${testID}-img` : undefined}
         // Optimize image loading
-        loadingIndicatorSource={{ uri: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PC9zdmc+' }}
+        loadingIndicatorSource={{
+          uri: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PC9zdmc+',
+        }}
         fadeDuration={300}
       />
 
       {error && (
-        <View style={[styles.errorContainer, { borderRadius }]} testID={testID ? `${testID}-error` : undefined}>
+        <View
+          style={[styles.errorContainer, { borderRadius }]}
+          testID={testID ? `${testID}-error` : undefined}
+        >
           <View style={styles.errorPlaceholder}>
             <View style={styles.errorIcon} />
           </View>
