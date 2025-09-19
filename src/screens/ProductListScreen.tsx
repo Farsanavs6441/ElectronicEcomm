@@ -8,13 +8,17 @@ import {
   Image,
   TextInput,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
 import ApiService from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-type ProductListNavigationProp = StackNavigationProp<RootStackParamList, 'ProductList'>;
+type ProductListNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ProductList'>;
 
 const ProductListScreen: React.FC = () => {
   const navigation = useNavigation<ProductListNavigationProp>();
@@ -23,21 +27,144 @@ const ProductListScreen: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [scaleAnim] = useState(new Animated.Value(0.8));
+  const [dotAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     loadProducts();
-  }, []);
+    loadFavorites();
+
+    // Animate loading screen
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.out(Easing.back(1.5)),
+        useNativeDriver: true,
+      })
+    ]).start();
+
+    // Animate dots with pulsing effect
+    const animateDots = () => {
+      Animated.sequence([
+        Animated.timing(dotAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(dotAnim, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        })
+      ]).start(() => animateDots());
+    };
+
+    if (loading) {
+      animateDots();
+    }
+  }, [loading]);
+
+  const loadFavorites = async () => {
+    try {
+      const savedFavorites = await AsyncStorage.getItem('electronicEcomm_favorites');
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+
+  const saveFavorites = async (newFavorites: string[]) => {
+    try {
+      await AsyncStorage.setItem('electronicEcomm_favorites', JSON.stringify(newFavorites));
+      setFavorites(newFavorites);
+    } catch (error) {
+      console.error('Error saving favorites:', error);
+    }
+  };
+
+  const toggleFavorite = (productId: string) => {
+    const newFavorites = favorites.includes(productId)
+      ? favorites.filter(id => id !== productId)
+      : [...favorites, productId];
+    saveFavorites(newFavorites);
+  };
+
+  const refreshProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Clear cache and fetch fresh data
+      await AsyncStorage.removeItem('electronicEcomm_products');
+      console.log('Cache cleared, fetching fresh data...');
+
+      const fetchedProducts = await ApiService.fetchProducts();
+      setProducts(fetchedProducts);
+      setFilteredProducts(fetchedProducts);
+
+      // Cache the fresh products
+      await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(fetchedProducts));
+      console.log('Fresh products cached successfully');
+    } catch (err) {
+      setError('Failed to refresh products. Please try again.');
+      console.error('Error refreshing products:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadProducts = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // First, try to load from cache
+      const cachedProducts = await AsyncStorage.getItem('electronicEcomm_products');
+      if (cachedProducts) {
+        const products = JSON.parse(cachedProducts);
+        setProducts(products);
+        setFilteredProducts(products);
+        setLoading(false);
+        console.log('Loaded products from cache');
+        return;
+      }
+
+      // If no cache, fetch from API and cache the result
+      console.log('Fetching products from API...');
       const fetchedProducts = await ApiService.fetchProducts();
       setProducts(fetchedProducts);
       setFilteredProducts(fetchedProducts);
+
+      // Cache the products
+      await AsyncStorage.setItem('electronicEcomm_products', JSON.stringify(fetchedProducts));
+      console.log('Products cached successfully');
     } catch (err) {
       setError('Failed to load products. Please try again.');
       console.error('Error loading products:', err);
+
+      // Try to load from cache as fallback
+      try {
+        const cachedProducts = await AsyncStorage.getItem('electronicEcomm_products');
+        if (cachedProducts) {
+          const products = JSON.parse(cachedProducts);
+          setProducts(products);
+          setFilteredProducts(products);
+          setError(null); // Clear error since we have cached data
+          console.log('Loaded products from cache as fallback');
+        }
+      } catch (cacheError) {
+        console.error('Error loading from cache:', cacheError);
+      }
     } finally {
       setLoading(false);
     }
@@ -50,29 +177,67 @@ const ProductListScreen: React.FC = () => {
     setFilteredProducts(filtered);
   }, [searchText, products]);
 
-  const renderProduct = ({ item }: { item: Product }) => (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
-    >
-      <Image source={{ uri: item.image }} style={styles.productImage} />
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>${item.price}</Text>
-        <Text style={styles.productCategory}>{item.category}</Text>
-        <Text style={[styles.stockStatus, { color: item.inStock ? 'green' : 'red' }]}>
-          {item.inStock ? 'In Stock' : 'Out of Stock'}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderProduct = ({ item }: { item: Product }) => {
+    const isFavorite = favorites.includes(item.id);
+
+    return (
+      <TouchableOpacity
+        style={styles.productCard}
+        onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
+      >
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: item.image }} style={styles.productImage} />
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={() => toggleFavorite(item.id)}
+          >
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={18}
+              color={isFavorite ? '#FF3B30' : '#666'}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.productInfo}>
+          <Text style={styles.productName}>{item.name}</Text>
+          <Text style={styles.productPrice}>${item.price}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading products...</Text>
-      </View>
+      <Animated.View
+        style={[
+          styles.loadingContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }]
+          }
+        ]}
+      >
+        <View style={styles.loadingContent}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Loading products...</Text>
+          <Text style={styles.loadingSubtext}>Please wait while we fetch the latest items</Text>
+          <Animated.View
+            style={[
+              styles.loadingDots,
+              {
+                opacity: dotAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.3, 1]
+                })
+              }
+            ]}
+          >
+            <Text style={styles.dot}>•</Text>
+            <Text style={styles.dot}>•</Text>
+            <Text style={styles.dot}>•</Text>
+          </Animated.View>
+        </View>
+      </Animated.View>
     );
   }
 
@@ -80,7 +245,7 @@ const ProductListScreen: React.FC = () => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={loadProducts}>
+        <TouchableOpacity style={styles.retryButton} onPress={refreshProducts}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -102,12 +267,6 @@ const ProductListScreen: React.FC = () => {
         keyExtractor={item => item.id}
         showsVerticalScrollIndicator={false}
       />
-      <TouchableOpacity
-        style={styles.favouritesButton}
-        onPress={() => navigation.navigate('Favourites')}
-      >
-        <Text style={styles.favouritesButtonText}>View Favourites</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -136,34 +295,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
+    margin: 6,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    width: '98%',
   },
   productImage: {
-    width: 80,
-    height: 80,
+    width: '100%',
+    height: 160,
     borderRadius: 8,
-    marginRight: 16,
+    marginBottom: 12,
   },
   productInfo: {
-    flex: 1,
+    alignItems: 'flex-start',
   },
   productName: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 8,
     color: '#333',
+    textAlign: 'left',
   },
   productPrice: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#007AFF',
-    marginBottom: 4,
   },
   productCategory: {
     fontSize: 14,
@@ -192,10 +351,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
   },
+  loadingContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+  },
+  loadingSubtext: {
+    marginTop: 8,
+    fontSize: 14,
     color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  loadingDots: {
+    flexDirection: 'row',
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  dot: {
+    fontSize: 20,
+    color: '#007AFF',
+    marginHorizontal: 5,
   },
   errorContainer: {
     flex: 1,
@@ -220,6 +402,32 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  productsList: {
+    paddingBottom: 20,
+  },
+  row: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+  },
+  imageContainer: {
+    position: 'relative',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
   },
 });
 
