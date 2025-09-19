@@ -1,8 +1,99 @@
 # Electronic E-commerce App
+## 🚀 Quick Start
+
+## 🚀 Installation & Setup
+
+### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd ElectronicEcomm
+```
+
+### 2. Install Dependencies
+```bash
+# Install Node.js dependencies
+npm install
+
+# For iOS only - Install CocoaPods dependencies
+cd ios && pod install && cd ..
+```
+
+### 3. Environment Setup
+
+#### React Native CLI (if not installed)
+```bash
+npm install -g @react-native-community/cli
+```
+
+#### Android Setup
+1. Open Android Studio
+2. Configure Android SDK and emulator
+3. Add Android SDK to PATH:
+   ```bash
+   export ANDROID_HOME=$HOME/Library/Android/sdk
+   export PATH=$PATH:$ANDROID_HOME/emulator
+   export PATH=$PATH:$ANDROID_HOME/tools
+   export PATH=$PATH:$ANDROID_HOME/tools/bin
+   export PATH=$PATH:$ANDROID_HOME/platform-tools
+   ```
+
+#### iOS Setup (macOS only)
+```bash
+# Install iOS dependencies
+cd ios && pod install && cd ..
+```
+
+## 🏃 Running the Application
+
+### Development Servers
+
+#### Start Metro Bundler
+```bash
+npm start
+# or
+npx react-native start
+```
+
+### Platform-Specific Commands
+
+#### iOS Simulator
+```bash
+# Run on default iOS simulator
+npm run ios
+
+# Run on specific iOS simulator
+npx react-native run-ios --simulator="iPhone 15"
+
+# Run on specific iOS version
+npx react-native run-ios --simulator="iPhone 15" --udid="<device-udid>"
+```
+
+#### Android Emulator/Device
+```bash
+# Run on connected Android device or emulator
+npm run android
+
+# Run on specific Android device
+npx react-native run-android --deviceId="<device-id>"
+
+# List connected Android devices
+adb devices
+```
+
+#### Web Browser
+```bash
+# Start web development server
+npm run web
+
+# Build for web production
+npm run build:web
+```
 
 ## 📱 Project Overview
 
-A modern, cross-platform e-commerce application built with React Native that runs seamlessly on iOS, Android, and Web platforms. This app provides a complete shopping experience for electronics products with an intuitive interface and smooth performance.
+### Brief Description
+A modern, cross-platform e-commerce application built with React Native that runs seamlessly on iOS, Android, and Web platforms. This app provides a complete shopping experience for electronics products featuring product browsing, favorites management, shopping cart functionality, and deep linking capabilities.
+
 
 ## 🛠️ Technologies Used
 
@@ -38,6 +129,12 @@ A modern, cross-platform e-commerce application built with React Native that run
 ### 🔧 Technical Features
 - **Cross-Platform**: Single codebase for iOS, Android, and Web
 - **Deep Linking**: Direct product access via `myshoplite://product/{id}`
+#### Web Browser
+For web testing, deep links work through URL navigation:
+
+1. **Direct URL Access**:
+   ```
+   http://localhost:3001/product/12
 - **Type Safety**: Full TypeScript implementation with strict typing
 - **Performance Optimized**: Memoization, lazy loading, and optimized re-renders
 - **Offline Support**: Persistent storage for cart and favorites
@@ -216,23 +313,57 @@ Refresh Flow:
 
 ## 🏗️ Technical Decisions & Architecture
 
+### Architecture Overview
+
+This project follows a **modular, context-driven architecture** designed for scalability, maintainability, and cross-platform compatibility. The architecture prioritizes separation of concerns, type safety, and developer experience.
+
+```
+┌─────────────────────────────────────┐
+│           Presentation Layer        │
+│   (Screens, Components, Styling)    │
+├─────────────────────────────────────┤
+│          Business Logic Layer       │
+│    (Context, Hooks, State Mgmt)     │
+├─────────────────────────────────────┤
+│           Service Layer             │
+│      (API, Storage, Navigation)     │
+├─────────────────────────────────────┤
+│           Platform Layer            │
+│    (iOS, Android, Web Adapters)     │
+└─────────────────────────────────────┘
+```
+
 ### State Management Approach
 
 **Decision: React Context API with Custom Hooks**
 
 **Rationale:**
-- **Simplicity**: Context API is built into React, reducing external dependencies
-- **Type Safety**: Works seamlessly with TypeScript for compile-time type checking
-- **Performance**: Combined with React.memo and useMemo for optimized re-renders
-- **Scalability**: Separate contexts for different concerns (Cart, Favorites, Loading)
-- **Developer Experience**: Custom hooks provide clean API for consuming state
+- **Zero Dependencies**: Built into React, no external state libraries needed
+- **Type Safety**: Seamless TypeScript integration with compile-time checking
+- **Performance**: Optimized with React.memo, useMemo, and context splitting
+- **Scalability**: Domain-separated contexts prevent unnecessary re-renders
+- **Developer Experience**: Custom hooks provide clean, reusable APIs
+- **Cross-Platform**: Works identically on mobile and web
 
-**Implementation:**
+**Implementation Structure:**
 ```typescript
-// Separate contexts for different domains
-├── CartContext.tsx        // Shopping cart state
-├── FavoritesContext.tsx   // User favorites
-└── LoadingContext.tsx      // Global loading states
+src/context/
+├── CartContext.tsx           // Shopping cart state & actions
+├── CartContext.web.tsx       // Web-specific cart (localStorage)
+├── FavoritesContext.tsx      // User favorites management
+├── FavoritesContext.web.tsx  // Web-specific favorites
+└── LoadingContext.tsx        // Global loading states
+```
+
+**Context Design Pattern:**
+```typescript
+interface CartContextType {
+  cartItems: CartItem[];
+  cartCount: number;
+  addToCart: (product: Product) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+}
 ```
 
 ### Component Architecture
@@ -240,35 +371,88 @@ Refresh Flow:
 **Decision: Atomic Design Pattern with Smart/Dumb Components**
 
 **Rationale:**
-- **Reusability**: Atomic components (ProductCard, ProgressiveImage) used across screens
+- **Reusability**: Atomic components used across multiple screens and platforms
 - **Maintainability**: Clear separation between presentation and business logic
-- **Testing**: Dumb components are easier to test in isolation
-- **Performance**: Presentational components can be memoized effectively
+- **Testing**: Pure components are easier to test in isolation
+- **Performance**: Presentational components can be memoized with React.memo
+- **Scalability**: Consistent component hierarchy across the application
 
-**Structure:**
+**Component Hierarchy:**
 ```
-components/
-├── atoms/          // Basic building blocks (buttons, inputs)
-├── molecules/      // Combinations (ProductCard, CartSuccessAnimation)
-├── organisms/      // Complex components (ProductList, CartSummary)
-└── screens/        // Full page components with business logic
+src/
+├── components/              // Reusable UI components
+│   ├── ProductCard.tsx      // Product display card (molecule)
+│   ├── CartSuccessAnimation.tsx // Cart feedback animation
+│   ├── ProgressiveImage.tsx     // Optimized image component
+│   ├── ProductCardSkeleton.tsx  // Loading state component
+│   └── ShimmerPlaceholder.tsx   // Loading animation
+├── screens/                 // Smart components with business logic
+│   ├── ProductListScreen.tsx    // Product browsing (organism)
+│   ├── ProductDetailsScreen.tsx // Product details (organism)
+│   ├── FavouritesScreen.tsx     // Favorites management
+│   └── SplashScreen.tsx         // App initialization
+└── styles/                  // Separated styling system
+    ├── commonStyles.ts          // Shared style definitions
+    ├── ProductListScreenStyles.ts
+    └── ProductDetailsScreenStyles.ts
 ```
+
+**Component Design Principles:**
+- **Single Responsibility**: Each component has one clear purpose
+- **Prop Interfaces**: TypeScript interfaces for all component props
+- **Composition over Inheritance**: Components composed of smaller parts
+- **Platform Adaptation**: Web-specific variants when needed (*.web.tsx)
 
 ### Data Persistence Strategy
 
-**Decision: Hybrid Approach - AsyncStorage (Mobile) + localStorage (Web)**
+**Decision: Hybrid Platform-Specific Storage**
+
+**Storage Solutions:**
+- **Mobile (iOS/Android)**: AsyncStorage for native app performance
+- **Web**: localStorage for browser compatibility
+- **API Cache**: Memory + persistent cache for product data
 
 **Rationale:**
-- **Platform-Specific**: Uses native storage solutions for best performance
-- **Offline-First**: Cart and favorites persist across app restarts
-- **Data Integrity**: JSON serialization with error handling
-- **Migration Support**: Version-based data migration capabilities
+- **Platform Optimization**: Uses each platform's optimal storage mechanism
+- **Offline-First Design**: Cart and favorites persist across app restarts
+- **Data Integrity**: JSON serialization with comprehensive error handling
+- **Performance**: Reduces API calls with intelligent caching
+- **User Experience**: Instant app startup with cached data
 
-**Implementation:**
+**Data Flow Architecture:**
 ```typescript
-// Platform-specific implementations
-├── CartContext.tsx       // Mobile with AsyncStorage
-├── CartContext.web.tsx   // Web with localStorage
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   API Service   │───▶│  Memory Cache    │───▶│  UI Components  │
+│  (fakestoreapi) │    │  (Products)      │    │   (Screens)     │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│ AsyncStorage/   │    │ Persistent Cache │    │ Context State   │
+│ localStorage    │    │ (electronicEcomm │    │ (Cart/Favorites)│
+│ (User Data)     │    │ _products)       │    │                 │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+**Storage Keys & Structure:**
+```typescript
+// Storage keys used across platforms
+const STORAGE_KEYS = {
+  PRODUCTS: 'electronicEcomm_products',
+  CART: 'electronicEcomm_cart',
+  FAVORITES: 'electronicEcomm_favorites'
+};
+
+// Data structures
+interface StoredCart {
+  items: CartItem[];
+  timestamp: number;
+}
+
+interface StoredFavorites {
+  productIds: string[];
+  timestamp: number;
+}
 ```
 
 ### Performance Considerations
@@ -382,95 +566,6 @@ Before setting up the project, ensure you have the following installed:
 - **Modern Browser**: Chrome, Firefox, Safari, or Edge
 - **No additional requirements**
 
-## 🚀 Installation & Setup
-
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd ElectronicEcomm
-```
-
-### 2. Install Dependencies
-```bash
-# Install Node.js dependencies
-npm install
-
-# For iOS only - Install CocoaPods dependencies
-cd ios && pod install && cd ..
-```
-
-### 3. Environment Setup
-
-#### React Native CLI (if not installed)
-```bash
-npm install -g @react-native-community/cli
-```
-
-#### Android Setup
-1. Open Android Studio
-2. Configure Android SDK and emulator
-3. Add Android SDK to PATH:
-   ```bash
-   export ANDROID_HOME=$HOME/Library/Android/sdk
-   export PATH=$PATH:$ANDROID_HOME/emulator
-   export PATH=$PATH:$ANDROID_HOME/tools
-   export PATH=$PATH:$ANDROID_HOME/tools/bin
-   export PATH=$PATH:$ANDROID_HOME/platform-tools
-   ```
-
-#### iOS Setup (macOS only)
-```bash
-# Install iOS dependencies
-cd ios && pod install && cd ..
-```
-
-## 🏃 Running the Application
-
-### Development Servers
-
-#### Start Metro Bundler
-```bash
-npm start
-# or
-npx react-native start
-```
-
-### Platform-Specific Commands
-
-#### iOS Simulator
-```bash
-# Run on default iOS simulator
-npm run ios
-
-# Run on specific iOS simulator
-npx react-native run-ios --simulator="iPhone 15"
-
-# Run on specific iOS version
-npx react-native run-ios --simulator="iPhone 15" --udid="<device-udid>"
-```
-
-#### Android Emulator/Device
-```bash
-# Run on connected Android device or emulator
-npm run android
-
-# Run on specific Android device
-npx react-native run-android --deviceId="<device-id>"
-
-# List connected Android devices
-adb devices
-```
-
-#### Web Browser
-```bash
-# Start web development server
-npm run web
-
-# Build for web production
-npm run build:web
-```
-
-The web application will be available at: `http://localhost:8080`
 
 ### Production Builds
 
@@ -578,20 +673,6 @@ For web testing, deep links work through URL navigation:
    http://localhost:3001/product/1
    ```
 
-2. **JavaScript Testing** (in browser console):
-   ```javascript
-   // Navigate to specific product
-   window.location.href = '/product/12';
-
-   // Or using history API
-   window.history.pushState({}, '', '/product/12');
-   ```
-
-3. **Custom Protocol Testing** (if configured):
-   ```bash
-   # Open browser and navigate to:
-   myshoplite://product/12
-   ```
 
 **Note:** Web deep linking works through standard URL routing. The custom `myshoplite://` scheme is primarily for mobile apps, while web uses standard HTTP(S) URLs.
 
