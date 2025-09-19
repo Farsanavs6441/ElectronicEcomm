@@ -5,7 +5,7 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/Farsanavs6441/ElectronicEcomm.git
 cd ElectronicEcomm
 ```
 
@@ -233,19 +233,59 @@ For web testing, deep links work through URL navigation:
 - Sidebar navigation on larger screens
 - Hover effects on product cards
 - Optimized spacing for desktop
-
-
-
-#
-# iOS Simulator
-xcrun simctl openurl booted "myshoplite://product/1"
-
-# Web
-
-# Android Emulator
-adb shell am start -W -a android.intent.action.VIEW \
-  -d "myshoplite://product/1" com.electronicEcomm
 ```
+
+### 🎬 Animated GIFs & Feature Demos
+
+> **Note:** GIF creation instructions are available in [screenshots/README.md](./screenshots/README.md#how-to-create-animated-gifs)
+
+#### Shopping Cart Animation
+![Cart Animation](./screenshots/cart-animation.gif)
+*Add to Cart success animation with visual feedback*
+
+#### Deep Link Navigation Demo
+![Deep Link Demo](./screenshots/deep-link-demo.gif)
+*Deep linking navigation from external app to specific product*
+
+#### Pull-to-Refresh Animation
+![Pull to Refresh](./screenshots/pull-to-refresh.gif)
+*Pull-to-refresh gesture on product list with loading animation*
+
+#### Search Functionality Demo
+![Search Demo](./screenshots/search-animation.gif)
+*Real-time search filtering with results animation*
+
+#### Favorites Toggle Animation
+![Favorites Animation](./screenshots/favorites-animation.gif)
+*Heart icon animation when adding/removing favorites*
+
+### 📱 Platform-Specific GIF Demos
+
+#### iOS Gesture Navigation
+![iOS Navigation](./screenshots/ios-navigation.gif)
+*iOS-specific navigation transitions and gestures*
+
+#### Android Material Design
+![Android Material](./screenshots/android-material.gif)
+*Material Design animations and transitions on Android*
+
+#### Web Responsive Layout
+![Web Responsive](./screenshots/web-responsive.gif)
+*Responsive design transitions from desktop to mobile view*
+
+### 🎮 Interactive Feature GIFs
+
+| Feature | GIF Demo | Description |
+|---------|----------|-------------|
+| **Add to Cart** | ![Cart](./screenshots/cart-animation.gif) | Button animation + success feedback |
+| **Favorites** | ![Heart](./screenshots/favorites-animation.gif) | Heart fill/unfill animation |
+| **Search** | ![Search](./screenshots/search-animation.gif) | Real-time filtering demonstration |
+| **Navigation** | ![Nav](./screenshots/navigation-flow.gif) | Screen transitions and navigation |
+| **Deep Link** | ![Link](./screenshots/deep-link-demo.gif) | External link → product details |
+
+### 📲 Platform Testing Deep Links
+
+#### Mobile Testing
 
 
 #### Deep Link Flow:
