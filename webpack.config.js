@@ -12,6 +12,7 @@ module.exports = {
   resolve: {
     alias: {
       'react-native$': 'react-native-web',
+      '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/lib/commonjs/index.js',
     },
     extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js', '.json', '.web.jsx', '.jsx'],
     fallback: {
@@ -31,6 +32,7 @@ module.exports = {
           /node_modules\/@react-navigation/,
           /node_modules\/react-native-gesture-handler/,
           /node_modules\/@react-native-masked-view/,
+          /node_modules\/@react-native-async-storage/,
         ],
         use: {
           loader: 'babel-loader',

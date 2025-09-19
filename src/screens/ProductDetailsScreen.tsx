@@ -13,6 +13,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
 import ApiService from '../services/api';
 import { useFavorites } from '../context/FavoritesContext';
+import { useCart } from '../context/CartContext';
 import ProductDetailSkeleton from '../components/ProductDetailSkeleton';
 import ProgressiveImage from '../components/ProgressiveImage';
 
@@ -27,6 +28,7 @@ const ProductDetailsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { addToCart: addProductToCart, isInCart, getCartItemQuantity } = useCart();
 
   useEffect(() => {
     loadProduct();
@@ -63,7 +65,15 @@ const ProductDetailsScreen: React.FC = () => {
   };
 
   const addToCart = () => {
-    Alert.alert('Cart', 'Product added to cart!');
+    if (product) {
+      addProductToCart(product);
+      Alert.alert('Success', `${product.name} added to cart!`, [
+        { text: 'Continue Shopping', style: 'default' },
+        { text: 'View Cart', style: 'default', onPress: () => {
+          // TODO: Navigate to cart screen
+        }}
+      ]);
+    }
   };
 
   if (loading) {

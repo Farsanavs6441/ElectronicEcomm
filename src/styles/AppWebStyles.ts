@@ -255,4 +255,33 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
+
+  cartButton: {
+    position: 'relative',
+    padding: 8,
+    marginRight: 20,
+  },
+
+  cartIcon: {
+    fontSize: 24,
+    color: Colors.textLight,
+  },
+
+  cartBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  cartBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
 });

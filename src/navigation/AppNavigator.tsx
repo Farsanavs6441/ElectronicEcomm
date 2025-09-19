@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { Text, Linking } from 'react-native';
 import { RootStackParamList } from '../types';
 import Colors from '../utils/colors';
 
@@ -75,8 +75,39 @@ const linking = {
 };
 
 const AppNavigator: React.FC = () => {
+  React.useEffect(() => {
+    const handleDeepLink = (url: string) => {
+      console.log('Deep link received:', url);
+    };
+
+    // Get the initial URL
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        console.log('Initial URL:', url);
+        handleDeepLink(url);
+      }
+    });
+
+    // Listen for deep links while app is running
+    const linkingListener = Linking.addEventListener('url', ({ url }) => {
+      console.log('URL event received:', url);
+      handleDeepLink(url);
+    });
+
+    return () => {
+      linkingListener?.remove();
+    };
+  }, []);
+
   return (
-    <NavigationContainer linking={linking}>
+    <NavigationContainer
+      linking={linking}
+      onStateChange={(state) => {
+        console.log('Navigation state changed:', JSON.stringify(state, null, 2));
+      }}
+      onReady={() => {
+        console.log('Navigation container ready');
+      }}>
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{

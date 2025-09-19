@@ -4,8 +4,8 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   TextInput,
+  RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,8 +14,12 @@ import ApiService from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLoading } from '../context/LoadingContext';
 import { useFavorites } from '../context/FavoritesContext';
+import { useCart } from '../context/CartContext';
 import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import ProgressiveImage from '../components/ProgressiveImage';
+import { commonStyles } from '../styles/commonStyles';
+import { styles as screenStyles } from '../styles/ProductListScreenStyles';
+import { combineStyles } from '../utils/styleHelpers';
 
 type ProductListNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ProductList'>;
 
@@ -26,13 +30,21 @@ const ProductListScreen: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { setLoading: setGlobalLoading } = useLoading();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { cartCount } = useCart();
 
   useEffect(() => {
     loadProducts();
   }, []);
 
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadProducts();
+    setRefreshing(false);
+  };
 
   const refreshProducts = async () => {
     try {
@@ -176,7 +188,17 @@ const ProductListScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Products</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Products</Text>
+        <TouchableOpacity style={styles.cartButton}>
+          <Text style={styles.cartIcon}>🛒</Text>
+          {cartCount > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{cartCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
       <TextInput
         style={styles.searchInput}
         placeholder="Search products..."
@@ -201,6 +223,14 @@ const ProductListScreen: React.FC = () => {
           maxToRenderPerBatch={10}
           windowSize={10}
           initialNumToRender={6}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#007AFF']}
+              tintColor="#007AFF"
+            />
+          }
           getItemLayout={(data, index) => (
             {length: 200, offset: 200 * index, index}
           )}
@@ -210,171 +240,7 @@ const ProductListScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 16,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-  },
-  searchInput: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  productCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    margin: 6,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    width: '98%',
-  },
-  productImage: {
-    width: '100%',
-    height: 160,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  productInfo: {
-    alignItems: 'flex-start',
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-    textAlign: 'left',
-  },
-  productPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  productCategory: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  stockStatus: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  favouritesButton: {
-    backgroundColor: '#007AFF',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  favouritesButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#FF3B30',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  retryButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  productsList: {
-    paddingBottom: 20,
-  },
-  row: {
-    justifyContent: 'space-between',
-    paddingHorizontal: 4,
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  favoriteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  favoriteIcon: {
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 20,
-  },
-  emptyStateText: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyStateSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-});
+// Combine common styles with screen-specific styles
+const styles = combineStyles(commonStyles, screenStyles);
 
 export default ProductListScreen;

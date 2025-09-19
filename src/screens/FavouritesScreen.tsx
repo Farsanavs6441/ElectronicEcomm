@@ -4,8 +4,8 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,6 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ApiService from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { useLoading } from '../context/LoadingContext';
+import { commonStyles } from '../styles/commonStyles';
+import { combineStyles } from '../utils/styleHelpers';
 
 type FavouritesNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Favourites'>;
 
@@ -22,6 +24,7 @@ const FavouritesScreen: React.FC = () => {
   const [favourites, setFavourites] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const { setLoading: setGlobalLoading } = useLoading();
 
   useEffect(() => {
@@ -33,6 +36,13 @@ const FavouritesScreen: React.FC = () => {
       loadFavorites();
     }, [])
   );
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadProducts();
+    await loadFavorites();
+    setRefreshing(false);
+  };
 
   const loadProducts = async () => {
     try {
@@ -143,10 +153,10 @@ const FavouritesScreen: React.FC = () => {
         Start adding products to your favourites to see them here
       </Text>
       <TouchableOpacity
-        style={styles.browseButton}
+        style={styles.primaryButton}
         onPress={() => navigation.navigate('ProductList')}
       >
-        <Text style={styles.browseButtonText}>Browse Products</Text>
+        <Text style={styles.buttonText}>Browse Products</Text>
       </TouchableOpacity>
     </View>
   );
@@ -163,60 +173,21 @@ const FavouritesScreen: React.FC = () => {
           renderItem={renderFavouriteItem}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#007AFF']}
+              tintColor="#007AFF"
+            />
+          }
         />
       )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 16,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    color: '#ccc',
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-  },
-  browseButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  browseButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
+// Use common styles with proper typing
+const styles = combineStyles(commonStyles);
 
 export default FavouritesScreen;

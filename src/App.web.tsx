@@ -6,12 +6,15 @@ import ApiService from './services/api';
 import { Product } from './types';
 import ProductDetailsScreenWeb from './screens/ProductDetailsScreen.web';
 import { FavoritesProvider } from './context/FavoritesContext.web';
+import { CartProvider } from './context/CartContext.web';
 import ProductCardSkeleton from './components/ProductCardSkeleton';
 import ProductDetailSkeleton from './components/ProductDetailSkeleton';
 import OptimizedImage from './components/OptimizedImage';
 import { styles } from './styles/AppWebStyles';
+import { useCart } from './context/CartContext.web';
 
-function App(): React.JSX.Element {
+function AppContent(): React.JSX.Element {
+  const { cartCount } = useCart();
   console.log('App rendering...');
 
   const [showSplash, setShowSplash] = React.useState(true);
@@ -223,12 +226,6 @@ function App(): React.JSX.Element {
     }
   };
 
-  const toggleFavorite = (productId: string) => {
-    const newFavorites = favorites.includes(productId)
-      ? favorites.filter(id => id !== productId)
-      : [...favorites, productId];
-    saveFavorites(newFavorites);
-  };
 
   const openProductDetail = (product: Product) => {
     setSelectedProduct(product);
@@ -306,7 +303,6 @@ function App(): React.JSX.Element {
 
     const isMobile = screenWidth < 1024;
     const cardStyle = isMobile ? styles.productCardMobile : styles.productCard;
-    const isFavorite = favorites.includes(item.id);
 
     return (
       <TouchableOpacity style={cardStyle} onPress={() => openProductDetail(item)}>
@@ -373,6 +369,16 @@ function App(): React.JSX.Element {
         <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>ElectronicEcom</Text>
+
+          {/* Cart Icon */}
+          <TouchableOpacity style={styles.cartButton}>
+            <Text style={styles.cartIcon}>🛒</Text>
+            {cartCount > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{cartCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
           {/* Tab Navigation */}
           <View style={styles.tabContainer}>
@@ -468,10 +474,18 @@ function App(): React.JSX.Element {
           )}
         </View>
         </View>
-      </FavoritesProvider>
+        </FavoritesProvider>
     </SafeAreaProvider>
   );
 }
 
+
+function App(): React.JSX.Element {
+  return (
+    <CartProvider>
+      <AppContent />
+    </CartProvider>
+  );
+}
 
 export default App;
