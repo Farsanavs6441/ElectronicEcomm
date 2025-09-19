@@ -10,6 +10,7 @@ interface ProductCardProps {
   showFavoriteIcon?: boolean;
   showRemoveButton?: boolean;
   onRemove?: (productId: string) => void;
+  testID?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -18,11 +19,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onFavoritePress,
   isFavorite = false,
   showFavoriteIcon = false,
-  onRemove
+  onRemove,
+  testID
 }) => {
   return (
     <View style={styles.card}>
-      <TouchableOpacity style={styles.productInfo} onPress={onPress}>
+      <TouchableOpacity style={styles.productInfo} onPress={onPress} testID={testID ? `${testID}-button` : undefined}>
         <View style={styles.imageContainer}>
           <Image
             source={{ uri: product.image, cache: 'force-cache' }}
@@ -30,6 +32,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             resizeMode="cover"
             onLoad={() => console.log('Image loaded:', product.name)}
             onError={() => console.log('Image failed to load:', product.name)}
+            testID={testID ? 'product-image' : undefined}
           />
           {/* {showFavoriteIcon && onFavoritePress && (
             <TouchableOpacity

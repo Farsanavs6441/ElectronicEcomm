@@ -6,6 +6,7 @@ interface ShimmerPlaceholderProps {
   height?: DimensionValue;
   borderRadius?: number;
   style?: ViewStyle;
+  testID?: string;
 }
 
 const ShimmerPlaceholder: React.FC<ShimmerPlaceholderProps> = ({
@@ -13,6 +14,7 @@ const ShimmerPlaceholder: React.FC<ShimmerPlaceholderProps> = ({
   height = 20,
   borderRadius = 4,
   style,
+  testID,
 }) => {
   const shimmerValue = useRef(new Animated.Value(0)).current;
   const scaleValue = useRef(new Animated.Value(0.95)).current;
@@ -73,6 +75,7 @@ const ShimmerPlaceholder: React.FC<ShimmerPlaceholderProps> = ({
 
   return (
     <Animated.View
+      testID={testID}
       style={[
         styles.container,
         {
