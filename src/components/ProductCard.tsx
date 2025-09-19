@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Product } from '../types';
-import Ionicons from '@react-native-vector-icons/ionicons';
 
 interface ProductCardProps {
   product: Product;
@@ -25,19 +24,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
     <View style={styles.card}>
       <TouchableOpacity style={styles.productInfo} onPress={onPress}>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: product.image }} style={styles.image} />
-          {showFavoriteIcon && onFavoritePress && (
+          <Image
+            source={{ uri: product.image, cache: 'force-cache' }}
+            style={styles.image}
+            resizeMode="cover"
+            onLoad={() => console.log('Image loaded:', product.name)}
+            onError={() => console.log('Image failed to load:', product.name)}
+          />
+          {/* {showFavoriteIcon && onFavoritePress && (
             <TouchableOpacity
               style={styles.favoriteButton}
               onPress={() => onFavoritePress(product.id)}
             >
-              <Ionicons
-                name={isFavorite ? 'heart' : 'heart-outline'}
-                size={16}
-                color={isFavorite ? '#FF3B30' : '#666'}
-              />
+              <Text style={[styles.favoriteIcon, { color: isFavorite ? '#FF3B30' : '#666' }]}>
+                {isFavorite ? '❤' : '♡'}
+              </Text>
             </TouchableOpacity>
-          )}
+          )} */}
         </View>
         <View style={styles.info}>
           <Text style={styles.name}>{product.name}</Text>
@@ -91,6 +94,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,
+  },
+  favoriteIcon: {
+    fontSize: 16,
+    textAlign: 'center',
   },
   info: {
     flex: 1,
