@@ -11,6 +11,7 @@ interface OptimizedImageProps {
   showShimmer?: boolean;
   onLoad?: () => void;
   onError?: () => void;
+  testID?: string;
 }
 
 const OptimizedImage: React.FC<OptimizedImageProps> = ({
@@ -22,6 +23,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   showShimmer = true,
   onLoad,
   onError,
+  testID,
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -39,7 +41,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   };
 
   return (
-    <View style={[containerStyle, { borderRadius }]}>
+    <View style={[containerStyle, { borderRadius }]} testID={testID}>
       {(loading || error) && showShimmer && (
         <ShimmerPlaceholder
           width="100%"
@@ -61,13 +63,14 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         resizeMode={resizeMode}
         onLoad={handleLoad}
         onError={handleError}
+        testID={testID ? `${testID}-img` : undefined}
         // Optimize image loading
         loadingIndicatorSource={{ uri: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PC9zdmc+' }}
         fadeDuration={300}
       />
 
       {error && (
-        <View style={[styles.errorContainer, { borderRadius }]}>
+        <View style={[styles.errorContainer, { borderRadius }]} testID={testID ? `${testID}-error` : undefined}>
           <View style={styles.errorPlaceholder}>
             <View style={styles.errorIcon} />
           </View>
